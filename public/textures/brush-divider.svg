@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="800" height="60" viewBox="0 0 800 60" preserveAspectRatio="none">
+  <defs>
+    <linearGradient id="brushFade" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="#f5e3c0" stop-opacity="0" />
+      <stop offset="18%" stop-color="#f5e3c0" stop-opacity="0.55" />
+      <stop offset="50%" stop-color="#fbe9c8" stop-opacity="0.9" />
+      <stop offset="82%" stop-color="#f5e3c0" stop-opacity="0.55" />
+      <stop offset="100%" stop-color="#f5e3c0" stop-opacity="0" />
+    </linearGradient>
+    <filter id="brushTexture" x="-20%" y="-100%" width="140%" height="300%">
+      <feTurbulence type="fractalNoise" baseFrequency="0.012 0.35" numOctaves="2" seed="11" result="n" />
+      <feDisplacementMap in="SourceGraphic" in2="n" scale="18" xChannelSelector="R" yChannelSelector="G" />
+      <feGaussianBlur stdDeviation="0.6" />
+    </filter>
+  </defs>
+  <g filter="url(#brushTexture)">
+    <rect x="0" y="24" width="800" height="5" rx="2.5" fill="url(#brushFade)" />
+    <rect x="60" y="14" width="680" height="3" rx="1.5" fill="url(#brushFade)" opacity="0.6" />
+    <rect x="60" y="36" width="680" height="3" rx="1.5" fill="url(#brushFade)" opacity="0.6" />
+  </g>
+</svg>
