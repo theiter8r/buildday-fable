@@ -1,0 +1,2145 @@
+<!DOCTYPE html>
+<html lang="en" data-resolution="landscape">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=1920, height=1080">
+    <title>OpsFlow — feature tour</title>
+    <script src="assets/gsap.min.js"></script>
+    <script src="assets/audio-data.js"></script>
+    <style>
+      @font-face {
+        font-family: 'Cormorant Garamond';
+        font-weight: 600;
+        font-style: normal;
+        src: url('assets/fonts/cormorant-garamond-latin-600-normal.woff2') format('woff2');
+      }
+      @font-face {
+        font-family: 'Cormorant Garamond';
+        font-weight: 700;
+        font-style: normal;
+        src: url('assets/fonts/cormorant-garamond-latin-700-normal.woff2') format('woff2');
+      }
+      @font-face {
+        font-family: 'Inter Variable';
+        font-weight: 100 900;
+        font-style: normal;
+        src: url('assets/fonts/inter-latin-wght-normal.woff2') format('woff2');
+      }
+
+      :root {
+        --navy-950: #05070f;
+        --navy-900: #0a0f1f;
+        --navy-850: #0e152b;
+        --navy-800: #131c38;
+        --navy-700: #1b2850;
+        --navy-600: #26376b;
+        --line-soft: rgb(255 255 255 / 0.08);
+        --line: rgb(155 180 255 / 0.18);
+        --line-strong: rgb(155 180 255 / 0.34);
+        --cobalt-600: #2b4a9e;
+        --cobalt-500: #3a63c8;
+        --cobalt-400: #5b84e6;
+        --cream-50: #fbf6ec;
+        --cream-100: #f3e8d6;
+        --cream-200: #e7d5b8;
+        --muted: #a9b4d0;
+        --subtle: #8a93ae;
+        --gold-400: #e8b75a;
+        --gold-300: #f2ce7e;
+        --peach: #f0b98e;
+        --verdigris: #79d3a6;
+        --coral: #ff8f82;
+        --running: #7fb0ff;
+        --on-gold: #05070f;
+        --font-display: 'Cormorant Garamond', Georgia, serif;
+        --font-sans: 'Inter Variable', Inter, system-ui, sans-serif;
+        --font-mono: ui-monospace, 'SF Mono', Menlo, monospace;
+      }
+
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+      html,
+      body {
+        width: 1920px;
+        height: 1080px;
+        overflow: hidden;
+        background: var(--navy-950);
+        color: var(--cream-50);
+        font-family: var(--font-sans);
+        -webkit-font-smoothing: antialiased;
+      }
+      #root {
+        position: relative;
+        width: 100%;
+        height: 100%;
+        overflow: hidden;
+        background: var(--navy-950);
+      }
+      .clip {
+        position: absolute;
+        inset: 0;
+        overflow: hidden;
+      }
+      .scene {
+        position: absolute;
+        inset: 0;
+      }
+
+      /* ---------- painted sky (hook + outro) ---------- */
+      .sky {
+        position: absolute;
+        inset: -80px;
+      }
+      .sky svg {
+        width: 100%;
+        height: 100%;
+        display: block;
+      }
+      .sky-shade {
+        position: absolute;
+        inset: 0;
+        background: linear-gradient(180deg, rgb(5 7 15 / 0.3) 0%, rgb(5 7 15 / 0.55) 55%, rgb(10 15 31 / 0.9) 100%);
+      }
+      .sky-shade.deep {
+        background: linear-gradient(180deg, rgb(5 7 15 / 0.55) 0%, rgb(5 7 15 / 0.72) 55%, rgb(10 15 31 / 0.95) 100%);
+      }
+      .sky-hairline {
+        position: absolute;
+        inset: 28px;
+        border: 1.5px solid rgb(251 246 236 / 0.14);
+        border-radius: 2px;
+      }
+      .title-glow {
+        position: absolute;
+        left: 50%;
+        top: 50%;
+        width: 1400px;
+        height: 520px;
+        margin-left: -700px;
+        margin-top: -260px;
+        border-radius: 50%;
+        background: radial-gradient(ellipse at center, rgb(232 183 90 / 0.24) 0%, rgb(251 246 236 / 0.09) 35%, transparent 70%);
+        opacity: 0.4;
+      }
+      .hero-copy {
+        position: absolute;
+        inset: 0;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 26px;
+        text-align: center;
+        padding: 0 160px;
+      }
+      .hero-line {
+        font-family: var(--font-display);
+        font-weight: 600;
+        color: var(--cream-50);
+        text-shadow:
+          0 0 24px rgb(251 246 236 / 0.28),
+          0 0 72px rgb(232 183 90 / 0.18);
+        letter-spacing: 0.02em;
+        line-height: 1.05;
+      }
+      #hook-1 {
+        font-size: 104px;
+      }
+      #hook-2 {
+        font-size: 66px;
+        color: var(--cream-200);
+      }
+      #outro-title {
+        font-size: 176px;
+        font-weight: 700;
+        letter-spacing: 0.03em;
+      }
+      #outro-tag {
+        font-size: 52px;
+        color: var(--cream-200);
+        max-width: 1500px;
+      }
+      #outro-eyebrow {
+        margin-top: 30px;
+        font-family: var(--font-sans);
+        font-size: 19px;
+        font-weight: 600;
+        letter-spacing: 0.18em;
+        text-transform: uppercase;
+        color: var(--muted);
+      }
+
+      /* ---------- app shell ---------- */
+      .shell {
+        position: absolute;
+        inset: 0;
+        background: var(--navy-900);
+        display: grid;
+        grid-template-rows: 64px 1fr;
+        grid-template-columns: 280px 1fr 420px;
+        grid-template-areas:
+          'top top top'
+          'palette canvas side';
+      }
+      .topbar {
+        grid-area: top;
+        background: var(--navy-850);
+        border-bottom: 1px solid var(--line-soft);
+        display: flex;
+        align-items: center;
+        padding: 0 24px;
+        gap: 14px;
+        position: relative;
+      }
+      .wordmark {
+        font-family: var(--font-display);
+        font-weight: 600;
+        font-size: 32px;
+        color: var(--cream-50);
+        letter-spacing: 0.02em;
+        line-height: 1;
+        margin-right: 6px;
+      }
+      .topbar .divider {
+        width: 1px;
+        height: 28px;
+        background: var(--line);
+      }
+      .doc-name {
+        font-size: 20px;
+        font-weight: 500;
+        color: var(--cream-100);
+        margin-left: 6px;
+      }
+      .topbar .spacer {
+        flex: 1;
+      }
+      .chip {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        height: 30px;
+        padding: 0 12px;
+        border-radius: 999px;
+        border: 1px solid var(--line);
+        background: var(--navy-800);
+        font-size: 15px;
+        font-weight: 500;
+        color: var(--muted);
+        white-space: nowrap;
+      }
+      .chip .dot {
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        background: var(--verdigris);
+        flex: none;
+      }
+      .chip.coral {
+        color: var(--coral);
+        border-color: rgb(255 143 130 / 0.4);
+      }
+      .chip.coral .dot {
+        background: var(--coral);
+      }
+      .valid-stack {
+        position: relative;
+        width: 292px;
+        height: 30px;
+      }
+      .valid-stack .chip {
+        position: absolute;
+        right: 0;
+        top: 0;
+      }
+      .saved-stack {
+        position: relative;
+        width: 140px;
+        height: 30px;
+      }
+      .saved-stack .chip {
+        position: absolute;
+        right: 0;
+        top: 0;
+      }
+      .ghost-btn {
+        height: 34px;
+        padding: 0 14px;
+        border-radius: 6px;
+        border: 1px solid var(--line);
+        color: var(--cream-200);
+        font-size: 15px;
+        font-weight: 500;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        white-space: nowrap;
+      }
+      .btn-run {
+        width: 124px;
+        height: 40px;
+        border-radius: 6px;
+        background: var(--cobalt-600);
+        color: var(--cream-50);
+        font-size: 17px;
+        font-weight: 600;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 10px;
+        margin-left: 6px;
+      }
+      .btn-run .tri {
+        width: 0;
+        height: 0;
+        border-left: 11px solid var(--cream-50);
+        border-top: 7px solid transparent;
+        border-bottom: 7px solid transparent;
+      }
+
+      .panel {
+        background: var(--navy-850);
+        position: relative;
+        overflow: hidden;
+      }
+      .panel::after {
+        content: '';
+        position: absolute;
+        inset: 0;
+        pointer-events: none;
+        background: radial-gradient(120% 80% at 50% 120%, rgb(243 232 214 / 0.05), transparent);
+      }
+      .palette {
+        grid-area: palette;
+        border-right: 1px solid var(--line-soft);
+        padding: 0 20px;
+      }
+      .side {
+        grid-area: side;
+        border-left: 1px solid var(--line-soft);
+        padding: 0 20px;
+      }
+      .panel-head {
+        height: 52px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        border-bottom: 1px solid var(--line-soft);
+        margin-bottom: 14px;
+      }
+      .eyebrow {
+        font-size: 14px;
+        font-weight: 600;
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+        color: var(--muted);
+      }
+      .palette-hint {
+        font-size: 16px;
+        line-height: 1.45;
+        color: var(--muted);
+        margin-bottom: 16px;
+      }
+      .pcard {
+        position: relative;
+        display: grid;
+        grid-template-columns: 28px 1fr;
+        column-gap: 12px;
+        padding: 14px 14px;
+        border: 1px solid var(--line);
+        border-radius: 10px;
+        background: var(--navy-800);
+        margin-bottom: 10px;
+      }
+      .pcard .hl {
+        position: absolute;
+        inset: -1px;
+        border-radius: 11px;
+        border: 1.5px solid var(--accent);
+        box-shadow: 0 0 22px color-mix(in srgb, var(--accent) 35%, transparent);
+        opacity: 0;
+      }
+      .pcard .ico {
+        width: 22px;
+        height: 22px;
+        margin-top: 1px;
+      }
+      .pcard .lbl {
+        font-size: 18px;
+        font-weight: 600;
+        color: var(--cream-100);
+        line-height: 1.2;
+      }
+      .pcard .desc {
+        grid-column: 2;
+        font-size: 15px;
+        line-height: 1.4;
+        color: var(--muted);
+        margin-top: 4px;
+      }
+
+      /* side panel: tabs */
+      .tabs {
+        display: flex;
+        gap: 22px;
+        height: 52px;
+        align-items: stretch;
+        border-bottom: 1px solid var(--line-soft);
+      }
+      .tab {
+        position: relative;
+        display: flex;
+        align-items: center;
+        font-size: 14px;
+        font-weight: 600;
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+        color: var(--subtle);
+      }
+      .tab .ul {
+        position: absolute;
+        left: 0;
+        right: 0;
+        bottom: -1px;
+        height: 2px;
+        background: var(--gold-400);
+        opacity: 0;
+      }
+      .tab.on {
+        color: var(--cream-100);
+      }
+      .view {
+        position: absolute;
+        left: 20px;
+        right: 20px;
+        top: 66px;
+        bottom: 0;
+        opacity: 0;
+      }
+      .insp-empty {
+        padding-top: 120px;
+        text-align: center;
+      }
+      .insp-empty .t {
+        font-family: var(--font-display);
+        font-weight: 600;
+        font-size: 34px;
+        color: var(--cream-50);
+        margin-bottom: 10px;
+      }
+      .insp-empty .b {
+        font-size: 16px;
+        line-height: 1.5;
+        color: var(--muted);
+        max-width: 320px;
+        margin: 0 auto 18px;
+      }
+      .insp-empty .h {
+        font-size: 14px;
+        color: var(--subtle);
+      }
+      .field {
+        margin-bottom: 14px;
+      }
+      .field .lab {
+        font-size: 14.5px;
+        font-weight: 500;
+        letter-spacing: 0.01em;
+        color: var(--cream-200);
+        margin-bottom: 6px;
+      }
+      .field .inp {
+        height: 40px;
+        border-radius: 6px;
+        border: 1px solid var(--line);
+        background: var(--navy-800);
+        color: var(--cream-50);
+        font-size: 16px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 0 12px;
+      }
+      .field .inp .unit {
+        color: var(--subtle);
+        font-size: 14px;
+      }
+      .field .inp .caret {
+        color: var(--subtle);
+        font-size: 13px;
+      }
+      .field .help {
+        font-size: 13.5px;
+        line-height: 1.4;
+        color: var(--subtle);
+        margin-top: 6px;
+      }
+      .toggle-row {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        height: 44px;
+      }
+      .toggle {
+        position: relative;
+        width: 44px;
+        height: 24px;
+        border-radius: 999px;
+        background: var(--navy-600);
+        flex: none;
+      }
+      .toggle .fillon {
+        position: absolute;
+        inset: 0;
+        border-radius: 999px;
+        background: var(--gold-400);
+        opacity: 0;
+      }
+      .toggle .knob {
+        position: absolute;
+        left: 2px;
+        top: 2px;
+        width: 20px;
+        height: 20px;
+        border-radius: 50%;
+        background: var(--cream-50);
+      }
+      .insp-foot {
+        display: flex;
+        justify-content: space-between;
+        margin-top: 10px;
+        padding-top: 14px;
+        border-top: 1px solid var(--line-soft);
+      }
+      .insp-foot .b {
+        height: 36px;
+        padding: 0 14px;
+        border-radius: 6px;
+        border: 1px solid var(--line);
+        display: flex;
+        align-items: center;
+        font-size: 15px;
+        font-weight: 500;
+        color: var(--cream-200);
+      }
+      .insp-foot .b.danger {
+        color: var(--coral);
+        border-color: rgb(255 143 130 / 0.5);
+      }
+
+      /* run view */
+      .run-col {
+        display: flex;
+        flex-direction: column;
+        height: 100%;
+      }
+      .status-row {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        height: 30px;
+        margin-bottom: 12px;
+      }
+      .status-stack {
+        position: relative;
+        height: 30px;
+        width: 210px;
+      }
+      .status-stack .chip {
+        position: absolute;
+        right: 0;
+        top: 0;
+        opacity: 0;
+      }
+      .status-stack .chip.gold {
+        color: var(--gold-300);
+        border-color: rgb(232 183 90 / 0.4);
+      }
+      .status-stack .chip.gold .dot {
+        background: var(--gold-400);
+      }
+      .status-stack .chip.blue .dot {
+        background: var(--running);
+      }
+      .status-stack .chip.idle .dot {
+        background: var(--subtle);
+      }
+      .issues {
+        position: relative;
+        height: 84px;
+        margin-bottom: 12px;
+      }
+      .issue-card {
+        position: absolute;
+        inset: 0;
+        border-radius: 8px;
+        border: 1px solid rgb(255 143 130 / 0.45);
+        background: var(--navy-800);
+        padding: 10px 12px;
+        display: grid;
+        grid-template-columns: 10px 1fr;
+        column-gap: 10px;
+        align-items: start;
+        opacity: 0;
+      }
+      .issue-card .dot {
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        background: var(--coral);
+        margin-top: 6px;
+      }
+      .issue-card .t {
+        font-size: 15px;
+        font-weight: 600;
+        color: var(--cream-50);
+      }
+      .issue-card .m {
+        font-size: 14px;
+        line-height: 1.35;
+        color: var(--muted);
+        margin-top: 2px;
+      }
+      .issue-ok {
+        position: absolute;
+        inset: 0;
+        border-radius: 8px;
+        border: 1px solid rgb(121 211 166 / 0.35);
+        background: var(--navy-800);
+        padding: 0 12px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        font-size: 15px;
+        color: var(--cream-200);
+        opacity: 0;
+      }
+      .issue-ok .ck {
+        color: var(--verdigris);
+        font-weight: 700;
+      }
+      .presets {
+        display: flex;
+        gap: 8px;
+        margin-bottom: 12px;
+        flex-wrap: nowrap;
+        overflow: hidden;
+      }
+      .preset {
+        height: 30px;
+        padding: 0 11px;
+        border-radius: 999px;
+        border: 1px solid var(--line);
+        background: var(--navy-800);
+        font-size: 13.5px;
+        font-weight: 500;
+        color: var(--muted);
+        display: flex;
+        align-items: center;
+        white-space: nowrap;
+      }
+      .preset.sel {
+        color: var(--on-gold);
+        background: var(--gold-400);
+        border-color: var(--gold-400);
+        font-weight: 600;
+      }
+      .payload {
+        border: 1px solid var(--line);
+        border-radius: 10px;
+        background: var(--navy-800);
+        padding: 12px 14px 14px;
+        margin-bottom: 12px;
+      }
+      .payload .prow {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 2px;
+      }
+      .payload .ptitle {
+        font-size: 15px;
+        font-weight: 600;
+        color: var(--cream-200);
+      }
+      .payload .pjson {
+        font-size: 13px;
+        color: var(--cobalt-400);
+        font-weight: 500;
+      }
+      .payload .pmain {
+        font-size: 17px;
+        font-weight: 500;
+        color: var(--cream-50);
+        line-height: 1.3;
+        margin-bottom: 10px;
+      }
+      .pgrid {
+        display: grid;
+        grid-template-columns: 1fr 1fr 1fr;
+        gap: 8px 12px;
+      }
+      .pf .k {
+        font-size: 12px;
+        font-weight: 600;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        color: var(--subtle);
+        margin-bottom: 1px;
+      }
+      .pf .v {
+        font-size: 14.5px;
+        color: var(--cream-200);
+        font-family: var(--font-mono);
+        font-variant-numeric: tabular-nums;
+        white-space: nowrap;
+      }
+      .pf .v.crit {
+        color: var(--coral);
+        font-weight: 600;
+      }
+      .player {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        height: 40px;
+        margin-bottom: 10px;
+      }
+      .pbtn {
+        height: 34px;
+        padding: 0 12px;
+        border-radius: 6px;
+        border: 1px solid var(--line);
+        background: var(--navy-800);
+        color: var(--cream-200);
+        font-size: 14px;
+        font-weight: 500;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        white-space: nowrap;
+      }
+      .pbtn.primary {
+        background: var(--cobalt-600);
+        color: var(--cream-50);
+        border-color: var(--cobalt-600);
+      }
+      .player .spacer {
+        flex: 1;
+      }
+      .seg {
+        display: flex;
+        border: 1px solid var(--line);
+        border-radius: 6px;
+        overflow: hidden;
+        height: 34px;
+      }
+      .seg span {
+        position: relative;
+        padding: 0 11px;
+        display: flex;
+        align-items: center;
+        font-size: 14px;
+        font-weight: 500;
+        color: var(--muted);
+        background: var(--navy-800);
+        border-right: 1px solid var(--line);
+        white-space: nowrap;
+      }
+      .seg span:last-child {
+        border-right: 0;
+      }
+      .seg span.on {
+        color: var(--cream-50);
+      }
+      .seg span.on::after {
+        content: '';
+        position: absolute;
+        left: 8px;
+        right: 8px;
+        bottom: 3px;
+        height: 2px;
+        background: var(--gold-400);
+      }
+      .tl-head {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        height: 30px;
+        margin-bottom: 4px;
+      }
+      .tl-wrap {
+        position: relative;
+        flex: 1;
+        overflow: hidden;
+      }
+      .tl-empty {
+        position: absolute;
+        font-size: 15px;
+        color: var(--subtle);
+        line-height: 1.4;
+      }
+      .summary {
+        position: relative;
+        border-top: 1px solid rgb(121 211 166 / 0.6);
+        border-radius: 8px;
+        background: var(--navy-800);
+        padding: 10px 14px;
+        margin-bottom: 8px;
+        opacity: 0;
+        min-height: 74px;
+      }
+      .summary .s1 {
+        font-family: var(--font-display);
+        font-weight: 600;
+        font-size: 24px;
+        color: var(--cream-50);
+        line-height: 1.15;
+      }
+      .summary .s2 {
+        font-size: 13px;
+        color: var(--muted);
+        margin-top: 4px;
+        font-family: var(--font-mono);
+      }
+      .rows {
+        display: flex;
+        flex-direction: column;
+      }
+      .row {
+        position: relative;
+        display: grid;
+        grid-template-columns: 54px 20px 1fr;
+        column-gap: 8px;
+        align-items: start;
+        padding: 6px 6px 6px 4px;
+        border-bottom: 1px solid var(--line-soft);
+        opacity: 0;
+        border-radius: 6px;
+      }
+      .row .hover {
+        position: absolute;
+        inset: 0;
+        border-radius: 6px;
+        background: var(--navy-700);
+        opacity: 0;
+      }
+      .row > span {
+        position: relative;
+      }
+      .row .t {
+        font-family: var(--font-mono);
+        font-size: 13px;
+        color: var(--muted);
+        padding-top: 2px;
+        font-variant-numeric: tabular-nums;
+      }
+      .row .g {
+        font-size: 14px;
+        line-height: 19px;
+        text-align: center;
+        font-weight: 700;
+      }
+      .row .m {
+        font-size: 14.5px;
+        line-height: 1.32;
+        color: var(--cream-200);
+      }
+      .row .m b {
+        color: var(--cream-50);
+        font-weight: 500;
+      }
+      .row .badge {
+        display: inline-block;
+        margin-left: 8px;
+        padding: 1px 7px;
+        border-radius: 4px;
+        font-size: 11.5px;
+        font-weight: 700;
+        letter-spacing: 0.08em;
+        background: var(--navy-900);
+        color: var(--verdigris);
+        vertical-align: 1px;
+      }
+      .g.g-run {
+        color: var(--running);
+      }
+      .g.ok {
+        color: var(--verdigris);
+      }
+      .g.wait {
+        color: var(--gold-300);
+      }
+      .g.br {
+        color: var(--cobalt-400);
+      }
+
+      /* canvas */
+      .canvas {
+        grid-area: canvas;
+        position: relative;
+        overflow: hidden;
+        background: var(--navy-900);
+      }
+      .impasto {
+        position: absolute;
+        inset: 0;
+        background:
+          radial-gradient(900px 700px at 8% 6%, rgb(43 74 158 / 0.16), transparent 70%),
+          radial-gradient(900px 700px at 96% 100%, rgb(240 185 142 / 0.08), transparent 70%),
+          repeating-linear-gradient(112deg, transparent 0 7px, rgb(91 132 230 / 0.03) 7px 9px);
+      }
+      .dots {
+        position: absolute;
+        inset: 0;
+        background-image: radial-gradient(rgb(155 180 255 / 0.14) 1px, transparent 1.2px);
+        background-size: 22px 22px;
+      }
+      .camera {
+        position: absolute;
+        inset: 0;
+      }
+      .edges {
+        position: absolute;
+        inset: 0;
+        width: 100%;
+        height: 100%;
+        overflow: visible;
+      }
+      .edge-base {
+        fill: none;
+        stroke: rgb(155 180 255 / 0.3);
+        stroke-width: 2;
+        stroke-linecap: round;
+      }
+      .edge-flow {
+        fill: none;
+        stroke: var(--cobalt-400);
+        stroke-width: 2.5;
+        stroke-dasharray: 6 8;
+        stroke-linecap: round;
+        opacity: 0;
+      }
+      #drag-line {
+        stroke: var(--cobalt-400);
+        stroke-width: 2;
+        stroke-dasharray: 5 6;
+        opacity: 0;
+      }
+      .pill {
+        position: absolute;
+        transform: translate(-50%, -50%);
+        height: 24px;
+        padding: 0 10px;
+        border-radius: 999px;
+        background: var(--navy-900);
+        border: 1px solid var(--line);
+        font-size: 12.5px;
+        font-weight: 700;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        color: var(--muted);
+        display: flex;
+        align-items: center;
+        white-space: nowrap;
+        line-height: 1;
+      }
+      .pill.true {
+        color: var(--verdigris);
+        border-color: rgb(121 211 166 / 0.45);
+      }
+      .pill-fill {
+        position: absolute;
+        inset: -1px;
+        border-radius: 999px;
+        background: var(--verdigris);
+        opacity: 0;
+      }
+      .pill .txt {
+        position: relative;
+      }
+      .pill .txt-on {
+        position: absolute;
+        left: 10px;
+        top: 0;
+        bottom: 0;
+        display: flex;
+        align-items: center;
+        color: var(--on-gold);
+        opacity: 0;
+      }
+
+      .node {
+        position: absolute;
+        width: 300px;
+        height: 112px;
+        border-radius: 10px;
+        background: var(--navy-800);
+        border: 1px solid var(--line);
+        box-shadow:
+          0 6px 16px -4px rgb(2 4 10 / 0.6),
+          0 2px 4px rgb(2 4 10 / 0.4);
+        padding: 12px 14px 10px 18px;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        overflow: visible;
+      }
+      .node .bar {
+        position: absolute;
+        left: 0;
+        top: 10px;
+        bottom: 10px;
+        width: 3px;
+        border-radius: 0 2px 2px 0;
+        background: var(--accent);
+      }
+      .node .hd {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
+      .node .ico {
+        width: 20px;
+        height: 20px;
+        color: var(--accent);
+        flex: none;
+      }
+      .node .lbl {
+        font-size: 17.5px;
+        font-weight: 500;
+        color: var(--cream-100);
+        white-space: nowrap;
+        flex: 1;
+        min-width: 0;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+      .node .glyphs {
+        position: relative;
+        width: 22px;
+        height: 22px;
+        flex: none;
+      }
+      .node .gl {
+        position: absolute;
+        inset: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 16px;
+        font-weight: 700;
+        opacity: 0;
+      }
+      .gl.idle {
+        color: var(--subtle);
+        opacity: 1;
+      }
+      .gl.running {
+        color: var(--running);
+      }
+      .gl.ok {
+        color: var(--verdigris);
+      }
+      .gl.wait {
+        color: var(--gold-300);
+      }
+      .gl.skip {
+        color: var(--subtle);
+      }
+      .node .meta {
+        font-size: 15.5px;
+        color: var(--muted);
+        line-height: 1.3;
+        white-space: nowrap;
+      }
+      .node .meta b {
+        color: var(--cream-200);
+        font-weight: 500;
+      }
+      .node .ft {
+        position: relative;
+        height: 28px;
+        margin-top: 4px;
+      }
+      .node .ft .st {
+        position: absolute;
+        left: 0;
+        top: 0;
+        height: 28px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-size: 13px;
+        font-weight: 600;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        color: var(--subtle);
+        opacity: 0;
+        white-space: nowrap;
+      }
+      .st .off {
+        font-family: var(--font-mono);
+        letter-spacing: 0;
+        text-transform: none;
+        font-weight: 500;
+        color: var(--muted);
+      }
+      .st.running {
+        color: var(--running);
+      }
+      .st.ok {
+        color: var(--verdigris);
+      }
+      .st.wait {
+        color: var(--gold-300);
+      }
+      .ring {
+        position: absolute;
+        inset: -1px;
+        border-radius: 11px;
+        opacity: 0;
+        pointer-events: none;
+      }
+      .ring.running {
+        box-shadow:
+          0 0 0 1px var(--running),
+          0 0 18px rgb(91 132 230 / 0.35),
+          0 0 40px rgb(91 132 230 / 0.2);
+      }
+      .ring.wait {
+        box-shadow:
+          0 0 0 1px var(--gold-300),
+          0 0 18px rgb(232 183 90 / 0.3),
+          0 0 44px rgb(232 183 90 / 0.18);
+      }
+      .ring.ok {
+        box-shadow: 0 0 0 1px var(--verdigris);
+      }
+      .ring.skip {
+        border: 1.5px dashed var(--subtle);
+      }
+      .ring.sel {
+        box-shadow:
+          0 0 0 2px var(--cobalt-400),
+          0 24px 48px -12px rgb(2 4 10 / 0.7);
+      }
+      .node.approval .hd::before {
+        content: '';
+        position: absolute;
+        left: 18px;
+        right: 14px;
+        top: 0;
+        height: 1px;
+        background: rgb(232 183 90 / 0.5);
+      }
+      .approve-btns {
+        position: absolute;
+        left: 0;
+        top: 0;
+        display: flex;
+        gap: 8px;
+        opacity: 0;
+      }
+      .abtn {
+        height: 28px;
+        padding: 0 14px;
+        border-radius: 6px;
+        font-size: 14px;
+        font-weight: 600;
+        display: flex;
+        align-items: center;
+      }
+      .abtn.approve {
+        background: var(--gold-400);
+        color: var(--on-gold);
+      }
+      .abtn.reject {
+        border: 1px solid rgb(255 143 130 / 0.55);
+        color: var(--coral);
+      }
+      .willfail {
+        position: absolute;
+        right: 14px;
+        top: 44px;
+        height: 22px;
+        padding: 0 8px;
+        border-radius: 4px;
+        border: 1px solid rgb(255 143 130 / 0.6);
+        background: var(--navy-900);
+        color: var(--coral);
+        font-size: 11.5px;
+        font-weight: 700;
+        letter-spacing: 0.08em;
+        display: flex;
+        align-items: center;
+        opacity: 0;
+      }
+      .handle {
+        position: absolute;
+        left: 50%;
+        bottom: -6px;
+        width: 12px;
+        height: 12px;
+        margin-left: -6px;
+        border-radius: 50%;
+        background: var(--navy-700);
+        border: 1.5px solid var(--line-strong);
+      }
+      .rchip {
+        display: inline-flex;
+        align-items: center;
+        height: 20px;
+        padding: 0 8px;
+        border-radius: 4px;
+        border: 1px solid rgb(121 211 166 / 0.45);
+        font-size: 11.5px;
+        font-weight: 700;
+        letter-spacing: 0.08em;
+        color: var(--verdigris);
+        position: relative;
+        vertical-align: 1px;
+      }
+      .rchip .fill {
+        position: absolute;
+        inset: -1px;
+        border-radius: 4px;
+        background: var(--verdigris);
+        opacity: 0;
+      }
+      .rchip .on {
+        position: absolute;
+        inset: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: var(--on-gold);
+        opacity: 0;
+      }
+      .rchip .txt {
+        position: relative;
+      }
+      .rchip.pm {
+        color: var(--muted);
+        border-color: var(--line-strong);
+        padding: 0 6px;
+      }
+
+      .controls {
+        position: absolute;
+        right: 20px;
+        bottom: 20px;
+        height: 44px;
+        padding: 0 8px;
+        border-radius: 10px;
+        background: rgb(14 21 43 / 0.9);
+        border: 1px solid var(--line);
+        display: flex;
+        align-items: center;
+        gap: 4px;
+      }
+      .controls span {
+        width: 34px;
+        height: 34px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: var(--muted);
+        font-size: 18px;
+        font-weight: 600;
+      }
+
+      /* caption card (feature explainer) */
+      .cap {
+        position: absolute;
+        left: 790px;
+        top: 34px;
+        width: 410px;
+        padding: 18px 22px 20px;
+        border-radius: 12px;
+        background: rgb(14 21 43 / 0.94);
+        border: 1px solid var(--line);
+        border-top: 1.5px solid rgb(232 183 90 / 0.6);
+        box-shadow:
+          0 24px 48px -12px rgb(2 4 10 / 0.7),
+          0 2px 8px rgb(2 4 10 / 0.5);
+        opacity: 0;
+      }
+      .cap .ct {
+        font-family: var(--font-display);
+        font-weight: 600;
+        font-size: 38px;
+        line-height: 1.05;
+        color: var(--cream-50);
+        margin-bottom: 8px;
+        letter-spacing: 0.01em;
+        padding-right: 60px;
+      }
+      .cap .cd {
+        font-size: 17px;
+        line-height: 1.45;
+        color: var(--cream-200);
+      }
+      .cap .cn {
+        position: absolute;
+        right: 18px;
+        top: 16px;
+        font-family: var(--font-mono);
+        font-size: 12px;
+        color: var(--subtle);
+        letter-spacing: 0.08em;
+      }
+
+      .keys {
+        position: absolute;
+        left: 440px;
+        bottom: 26px;
+        display: flex;
+        gap: 12px;
+      }
+      .key {
+        height: 38px;
+        padding: 0 12px;
+        border-radius: 8px;
+        background: rgb(14 21 43 / 0.94);
+        border: 1px solid var(--line);
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        font-size: 14.5px;
+        color: var(--cream-200);
+        opacity: 0;
+        white-space: nowrap;
+      }
+      .key kbd {
+        font-family: var(--font-mono);
+        font-size: 13px;
+        color: var(--cream-50);
+        background: var(--navy-700);
+        border: 1px solid var(--line-strong);
+        border-radius: 4px;
+        padding: 2px 7px;
+      }
+      .keycap {
+        position: absolute;
+        left: 560px;
+        bottom: 30px;
+        height: 40px;
+        padding: 0 14px;
+        border-radius: 8px;
+        background: var(--navy-700);
+        border: 1px solid var(--line-strong);
+        font-family: var(--font-mono);
+        font-size: 15px;
+        color: var(--cream-50);
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        opacity: 0;
+      }
+
+      .toast {
+        position: absolute;
+        right: 24px;
+        bottom: 24px;
+        width: 320px;
+        padding: 12px 14px 12px 18px;
+        border-radius: 8px;
+        background: var(--navy-700);
+        border: 1px solid var(--line);
+        box-shadow: 0 6px 16px -4px rgb(2 4 10 / 0.6);
+        opacity: 0;
+      }
+      .toast::before {
+        content: '';
+        position: absolute;
+        left: 0;
+        top: 8px;
+        bottom: 8px;
+        width: 4px;
+        border-radius: 0 2px 2px 0;
+        background: var(--verdigris);
+      }
+      .toast .tt {
+        font-size: 15px;
+        font-weight: 600;
+        color: var(--cream-50);
+      }
+      .toast .tb {
+        font-size: 13.5px;
+        color: var(--muted);
+        margin-top: 2px;
+      }
+
+      .ghost {
+        position: absolute;
+        left: 0;
+        top: 0;
+        width: 220px;
+        height: 60px;
+        border-radius: 10px;
+        background: var(--navy-800);
+        border: 1px solid var(--line-strong);
+        box-shadow: 0 24px 48px -12px rgb(2 4 10 / 0.7);
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 0 16px;
+        font-size: 17px;
+        font-weight: 500;
+        color: var(--cream-100);
+        opacity: 0;
+      }
+      .ghost .bar {
+        position: absolute;
+        left: 0;
+        top: 8px;
+        bottom: 8px;
+        width: 3px;
+        background: #7fb0ff;
+        border-radius: 0 2px 2px 0;
+      }
+      .ghost .ico {
+        width: 20px;
+        height: 20px;
+        color: #7fb0ff;
+      }
+
+      .cursor {
+        position: absolute;
+        left: 0;
+        top: 0;
+        width: 30px;
+        height: 34px;
+        filter: drop-shadow(0 3px 6px rgb(2 4 10 / 0.7));
+        opacity: 0;
+      }
+      .press {
+        position: absolute;
+        left: 0;
+        top: 0;
+        width: 44px;
+        height: 44px;
+        margin-left: -22px;
+        margin-top: -22px;
+        border-radius: 50%;
+        border: 2px solid var(--gold-300);
+        opacity: 0;
+      }
+    </style>
+  </head>
+  <body>
+    <div data-hf-id="hf-3m6n" id="root" data-composition-id="main" data-start="0" data-duration="56" data-width="1920" data-height="1080" data-fps="30">
+      <!-- ===== Scene 1: the painting (hook) ===== -->
+      <section data-hf-id="hf-jdpm" id="s1" class="clip" data-start="0" data-duration="5.1" data-track-index="0">
+        <div data-hf-id="hf-69sr" class="scene" id="s1-wrap">
+          <div data-hf-id="hf-2r8x" class="sky" id="s1-sky"></div>
+          <div data-hf-id="hf-oiq3" class="sky-shade"></div>
+          <div data-hf-id="hf-ohzc" class="title-glow" id="s1-glow"></div>
+          <div data-hf-id="hf-169e" class="sky-hairline"></div>
+          <div data-hf-id="hf-jloi" class="hero-copy">
+            <div data-hf-id="hf-2x6j" class="hero-line" id="hook-1">Every incident has a shape.</div>
+            <div data-hf-id="hf-tdct" class="hero-line" id="hook-2">Draw it before it happens.</div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ===== Scenes 2–9: the app ===== -->
+      <section data-hf-id="hf-k18r" id="s2" class="clip" data-start="4.39" data-duration="46.9" data-track-index="1">
+        <div data-hf-id="hf-qbpe" class="scene" id="s2-wrap">
+          <div data-hf-id="hf-fh3a" class="shell">
+            <header data-hf-id="hf-6f4s" class="topbar">
+              <div data-hf-id="hf-5eil" class="wordmark">godsplan</div>
+              <div data-hf-id="hf-jk23" class="divider"></div>
+              <div data-hf-id="hf-n1tf" class="doc-name">Critical API Incident</div>
+              <div data-hf-id="hf-x5ec" class="spacer"></div>
+              <div data-hf-id="hf-p74t" class="valid-stack">
+                <div data-hf-id="hf-4r4f" class="chip" id="chip-valid" data-layout-allow-overlap=""><span data-hf-id="hf-9gry" class="dot"></span>Workflow is valid — ready to run</div>
+                <div data-hf-id="hf-idu3" class="chip coral" id="chip-issue" data-layout-allow-overlap="" style="opacity: 0"><span data-hf-id="hf-zcc2" class="dot"></span>1 issue — fix before running</div>
+              </div>
+              <div data-hf-id="hf-b6fa" class="saved-stack">
+                <div data-hf-id="hf-oz91" class="chip" id="chip-saved" data-layout-allow-overlap=""><span data-hf-id="hf-kz25" class="dot" style="background: var(--subtle)"></span>Saved locally</div>
+                <div data-hf-id="hf-kpgi" class="chip" id="chip-saving" data-layout-allow-overlap="" style="opacity: 0"><span data-hf-id="hf-5gf3" class="dot" style="background: var(--gold-400)"></span>Saving…</div>
+              </div>
+              <div data-hf-id="hf-5xlr" class="ghost-btn" id="btn-import">Import JSON</div>
+              <div data-hf-id="hf-163d" class="ghost-btn" id="btn-export">Export JSON</div>
+              <div data-hf-id="hf-jeor" class="btn-run" id="btn-run"><span data-hf-id="hf-mt3k" class="tri"></span>Run</div>
+            </header>
+
+            <aside data-hf-id="hf-w7ua" class="panel palette">
+              <div data-hf-id="hf-95fx" class="panel-head"><span data-hf-id="hf-uajl" class="eyebrow">Palette</span><span data-hf-id="hf-poxo" class="eyebrow" style="color: var(--subtle)">5 nodes</span></div>
+              <div data-hf-id="hf-iqry" class="palette-hint">Drag a node onto the canvas, or click to drop it at the center.</div>
+              <div data-hf-id="hf-zps8" id="palette-cards"></div>
+            </aside>
+
+            <main data-hf-id="hf-uktf" class="canvas" id="canvas" data-layout-allow-overflow="">
+              <div data-hf-id="hf-ib8o" class="impasto" id="impasto"></div>
+              <div data-hf-id="hf-zx1w" class="dots"></div>
+              <div data-hf-id="hf-9gyz" class="camera" id="camera" data-layout-allow-overflow="">
+                <svg data-hf-id="hf-g3gd" class="edges" id="edges" xmlns="http://www.w3.org/2000/svg" />
+                <div data-hf-id="hf-9c8n" id="pills"></div>
+                <div data-hf-id="hf-p590" id="nodes"></div>
+              </div>
+              <div data-hf-id="hf-ysqi" class="controls" id="controls"><span data-hf-id="hf-abt5">−</span><span data-hf-id="hf-kyim">+</span><span data-hf-id="hf-ly0l">⛶</span><span data-hf-id="hf-4dkl">↶</span><span data-hf-id="hf-4rvm">↷</span></div>
+              <div data-hf-id="hf-e9za" id="caps"></div>
+              <div data-hf-id="hf-o0l2" class="keys" id="keys">
+                <div data-hf-id="hf-3g0l" class="key" id="key-0"><kbd data-hf-id="hf-ndde">⌘Z</kbd>Undo</div>
+                <div data-hf-id="hf-utki" class="key" id="key-1"><kbd data-hf-id="hf-wp9d">⌘⇧Z</kbd>Redo</div>
+                <div data-hf-id="hf-mfnq" class="key" id="key-2"><kbd data-hf-id="hf-4k3v">⌘↵</kbd>Run</div>
+                <div data-hf-id="hf-tke4" class="key" id="key-3"><kbd data-hf-id="hf-jsm5">⌘S</kbd>Export JSON</div>
+              </div>
+              <div data-hf-id="hf-bni1" class="keycap" id="keycap"><span data-hf-id="hf-stz2">⌫</span> Delete</div>
+            </main>
+
+            <aside data-hf-id="hf-kvrb" class="panel side" id="side">
+              <div data-hf-id="hf-5rmk" class="tabs">
+                <div data-hf-id="hf-ypyx" class="tab on" id="tab-insp">Inspector<span data-hf-id="hf-1tgi" class="ul" id="ul-insp" style="opacity: 1"></span></div>
+                <div data-hf-id="hf-6lkx" class="tab" id="tab-run">Run<span data-hf-id="hf-ld6z" class="ul" id="ul-run"></span></div>
+              </div>
+              <div data-hf-id="hf-a1ur" class="view insp-empty" id="v-empty" style="opacity: 1" data-layout-allow-overlap="">
+                <div data-hf-id="hf-851m" class="t">No node selected</div>
+                <div data-hf-id="hf-blhw" class="b">Select a node on the canvas to see and edit its configuration here.</div>
+                <div data-hf-id="hf-fuzi" class="h">Tip: click an empty area of the canvas to deselect.</div>
+              </div>
+              <div data-hf-id="hf-a86w" class="view" id="v-form" data-layout-allow-overlap="">
+                <div data-hf-id="hf-iyi6" class="eyebrow" style="margin-bottom: 14px; color: #7fb0ff">Action</div>
+                <div data-hf-id="hf-0ztw" class="field"><div data-hf-id="hf-fm9a" class="lab">Name</div><div data-hf-id="hf-eabm" class="inp">Page primary on-call</div></div>
+                <div data-hf-id="hf-bxgc" class="field"><div data-hf-id="hf-z399" class="lab">Action type</div><div data-hf-id="hf-9ve7" class="inp"><span data-hf-id="hf-dg4a">Page on-call</span><span data-hf-id="hf-4r0k" class="caret">▾</span></div></div>
+                <div data-hf-id="hf-aqj9" class="field"><div data-hf-id="hf-0w1c" class="lab">Target</div><div data-hf-id="hf-iqmu" class="inp">sre-primary</div><div data-hf-id="hf-95lt" class="help">Who or what this action is directed at.</div></div>
+                <div data-hf-id="hf-b4ua" class="field"><div data-hf-id="hf-cwe7" class="lab">Simulated duration</div><div data-hf-id="hf-elov" class="inp"><span data-hf-id="hf-07va">1200</span><span data-hf-id="hf-fh87" class="unit">ms</span></div><div data-hf-id="hf-3ama" class="help">How long this step takes to complete when the run plays.</div></div>
+                <div data-hf-id="hf-d4df" class="field">
+                  <div data-hf-id="hf-sgmr" class="toggle-row"><div data-hf-id="hf-hcu5" class="lab" style="margin: 0">Simulate failure</div><div data-hf-id="hf-bbmm" class="toggle" id="tg-fail"><div data-hf-id="hf-ooqw" class="fillon" id="tg-fail-on"></div><div data-hf-id="hf-k7dv" class="knob" id="tg-fail-knob"></div></div></div>
+                  <div data-hf-id="hf-38tg" class="help">When on, this action fails during the run so you can see how the workflow handles it.</div>
+                </div>
+                <div data-hf-id="hf-diog" class="field">
+                  <div data-hf-id="hf-au1f" class="toggle-row"><div data-hf-id="hf-txqj" class="lab" style="margin: 0">Continue on failure</div><div data-hf-id="hf-4iz0" class="toggle"><div data-hf-id="hf-0pvg" class="knob"></div></div></div>
+                </div>
+                <div data-hf-id="hf-byft" class="insp-foot"><div data-hf-id="hf-gya9" class="b">Duplicate node</div><div data-hf-id="hf-4q2k" class="b danger">Delete node</div></div>
+              </div>
+              <div data-hf-id="hf-vbbh" class="view" id="v-run" data-layout-allow-overlap="">
+                <div data-hf-id="hf-ha9i" class="run-col">
+                  <div data-hf-id="hf-a36h" class="status-row">
+                    <span data-hf-id="hf-m63u" class="eyebrow">Issues</span>
+                    <div data-hf-id="hf-j0h1" class="status-stack">
+                      <div data-hf-id="hf-qg8g" class="chip idle" id="st-idle" data-layout-allow-overlap="" style="opacity: 1"><span data-hf-id="hf-zqn3" class="dot"></span>Idle</div>
+                      <div data-hf-id="hf-8l6g" class="chip blue" id="st-running" data-layout-allow-overlap=""><span data-hf-id="hf-04y4" class="dot"></span>Running</div>
+                      <div data-hf-id="hf-rs1w" class="chip gold" id="st-wait" data-layout-allow-overlap=""><span data-hf-id="hf-0j95" class="dot"></span>Waiting on approval</div>
+                      <div data-hf-id="hf-42z4" class="chip blue" id="st-running2" data-layout-allow-overlap=""><span data-hf-id="hf-0xk6" class="dot"></span>Running</div>
+                      <div data-hf-id="hf-6prt" class="chip" id="st-done" data-layout-allow-overlap=""><span data-hf-id="hf-1bv7" class="dot"></span>Completed</div>
+                    </div>
+                  </div>
+                  <div data-hf-id="hf-cwug" class="issues">
+                    <div data-hf-id="hf-i387" class="issue-card" id="issue-1" data-layout-allow-overlap="">
+                      <span data-hf-id="hf-1q68" class="dot"></span>
+                      <div data-hf-id="hf-yeow">
+                        <div data-hf-id="hf-bule" class="t">Unreachable node</div>
+                        <div data-hf-id="hf-ek3l" class="m"><b data-hf-id="hf-o311" style="color: var(--cream-200); font-weight: 500">Scale checkout-api</b> can't be reached from the Trigger. Connect it from an upstream node, or remove it.</div>
+                      </div>
+                    </div>
+                    <div data-hf-id="hf-fyi5" class="issue-ok" id="issue-ok" data-layout-allow-overlap=""><span data-hf-id="hf-51x0" class="ck">✓</span>No issues found. This workflow is ready to run.</div>
+                  </div>
+                  <div data-hf-id="hf-0kdr" class="eyebrow" style="margin-bottom: 8px">Incident payload</div>
+                  <div data-hf-id="hf-xz0u" class="presets" id="presets">
+                    <div data-hf-id="hf-eanr" class="preset sel" id="preset-0">Critical API outage</div>
+                    <div data-hf-id="hf-nr40" class="preset" id="preset-1">Elevated latency, single region</div>
+                    <div data-hf-id="hf-rqgn" class="preset" id="preset-2">Low-priority anomaly</div>
+                  </div>
+                  <div data-hf-id="hf-d5eq" class="payload" id="payload">
+                    <div data-hf-id="hf-jm1w" class="prow"><div data-hf-id="hf-0u13" class="ptitle">Fields</div><div data-hf-id="hf-8628" class="pjson">Edit as JSON</div></div>
+                    <div data-hf-id="hf-n025" class="pmain">Checkout API returning 5xx errors</div>
+                    <div data-hf-id="hf-odx4" class="pgrid">
+                      <div data-hf-id="hf-gp7i" class="pf"><div data-hf-id="hf-kgbi" class="k">Service</div><div data-hf-id="hf-0qyf" class="v">checkout-api</div></div>
+                      <div data-hf-id="hf-25qa" class="pf"><div data-hf-id="hf-opz0" class="k">Severity</div><div data-hf-id="hf-yq4b" class="v crit">critical</div></div>
+                      <div data-hf-id="hf-2k1b" class="pf"><div data-hf-id="hf-k1vv" class="k">Error rate</div><div data-hf-id="hf-77n8" class="v">42.5%</div></div>
+                      <div data-hf-id="hf-2ycc" class="pf"><div data-hf-id="hf-pjdf" class="k">Region</div><div data-hf-id="hf-3laa" class="v">us-east-1</div></div>
+                      <div data-hf-id="hf-3cnd" class="pf"><div data-hf-id="hf-arl7" class="k">Affected</div><div data-hf-id="hf-ocfr" class="v">18,400</div></div>
+                      <div data-hf-id="hf-3qye" class="pf"><div data-hf-id="hf-tigu" class="k">Source</div><div data-hf-id="hf-v3vd" class="v">PagerDuty</div></div>
+                    </div>
+                  </div>
+                  <div data-hf-id="hf-ahjb" class="player">
+                    <div data-hf-id="hf-l9un" class="pbtn primary" id="p-run">▶ Run</div>
+                    <div data-hf-id="hf-e8xu" class="pbtn">⏸ Pause</div>
+                    <div data-hf-id="hf-dx8q" class="pbtn">Step</div>
+                    <div data-hf-id="hf-vkgn" class="pbtn">Reset</div>
+                    <div data-hf-id="hf-1ing" class="spacer"></div>
+                    <div data-hf-id="hf-l2bo" class="seg" id="seg"><span data-hf-id="hf-4emm" class="on">1×</span><span data-hf-id="hf-fyje">2×</span><span data-hf-id="hf-5gdi">Instant</span></div>
+                  </div>
+                  <div data-hf-id="hf-q1hr" class="tl-head"><span data-hf-id="hf-a0t9" class="eyebrow">Timeline</span><span data-hf-id="hf-wg6a" class="eyebrow" style="color: var(--subtle)">offset from run start</span></div>
+                  <div data-hf-id="hf-1a34" class="tl-wrap" data-layout-allow-overflow="">
+                    <div data-hf-id="hf-afdj" class="tl-empty" id="tl-empty" data-layout-allow-overlap="">Nothing has run yet. Press Run to start.</div>
+                    <div data-hf-id="hf-r844" class="summary" id="summary" data-layout-allow-overlap="">
+                      <div data-hf-id="hf-olko" class="s1">Resolved via critical branch in&#160;4.3s.</div>
+                      <div data-hf-id="hf-ak25" class="s2">6 nodes · 1 approval · 0 failures</div>
+                    </div>
+                    <div data-hf-id="hf-jiiy" class="rows" id="rows"></div>
+                  </div>
+                </div>
+              </div>
+            </aside>
+          </div>
+
+          <div data-hf-id="hf-50us" class="toast" id="toast-1" data-layout-allow-occlusion=""><div data-hf-id="hf-0yl8" class="tt">Action added</div><div data-hf-id="hf-snnb" class="tb">Scale checkout-api · dropped at cursor</div></div>
+          <div data-hf-id="hf-fwcf" class="toast" id="toast-2" data-layout-allow-occlusion=""><div data-hf-id="hf-v6xe" class="tt">Scale checkout-api deleted</div><div data-hf-id="hf-raiq" class="tb">Undo with ⌘Z</div></div>
+          <div data-hf-id="hf-by8e" class="toast" id="toast-3" data-layout-allow-occlusion=""><div data-hf-id="hf-ng90" class="tt">Workflow exported</div><div data-hf-id="hf-cl3f" class="tb">opsflow-critical-api-incident-20260923-2032.json</div></div>
+          <div data-hf-id="hf-yygg" class="ghost" id="ghost" data-layout-allow-occlusion=""><span data-hf-id="hf-flu0" class="bar"></span><svg data-hf-id="hf-rpg7" class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><circle data-hf-id="hf-2731" cx="12" cy="12" r="3" /><path data-hf-id="hf-ubts" d="M12 2v3M12 19v3M4.2 4.2l2.1 2.1M17.7 17.7l2.1 2.1M2 12h3M19 12h3M4.2 19.8l2.1-2.1M17.7 6.3l2.1-2.1" /></svg>Action</div>
+          <div data-hf-id="hf-u72c" class="press" id="press"></div>
+          <svg data-hf-id="hf-jgs0" class="cursor" id="cursor" viewBox="0 0 30 34" xmlns="http://www.w3.org/2000/svg">
+            <path data-hf-id="hf-yiea" d="M3 2 L27 17 L16 19 L21 31 L16 33 L11 21 L3 27 Z" fill="#FBF6EC" stroke="#0A0F1F" stroke-width="2" stroke-linejoin="round" />
+          </svg>
+        </div>
+      </section>
+
+      <!-- ===== Scene 10: outro ===== -->
+      <section data-hf-id="hf-r44k" id="s3" class="clip" data-start="50.6" data-duration="5.4" data-track-index="2">
+        <div data-hf-id="hf-t5r9" class="scene" id="s3-wrap">
+          <div data-hf-id="hf-uggz" class="sky" id="s3-sky"></div>
+          <div data-hf-id="hf-im8n" class="sky-shade deep"></div>
+          <div data-hf-id="hf-1geu" class="title-glow" id="s3-glow"></div>
+          <div data-hf-id="hf-jcty" class="sky-hairline"></div>
+          <div data-hf-id="hf-cq5s" class="hero-copy" style="gap: 22px">
+            <div data-hf-id="hf-q69t" class="hero-line" id="outro-title">god'splan</div>
+            <div data-hf-id="hf-583u" class="hero-line" id="outro-tag">Design the response before the incident writes it for you.</div>
+            <div data-hf-id="hf-1ex4" id="outro-eyebrow">Local-first. Nothing leaves this machine.</div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ===== Audio ===== -->
+      <audio data-hf-id="hf-w8ec" id="music" src="assets/music/happy-beats-business-moves-vol-12-by-ende-dot-app.mp3" data-start="0" data-duration="56" data-track-index="10" data-volume="0.3" data-automation="{&quot;version&quot;:1,&quot;lanes&quot;:[{&quot;target&quot;:&quot;volume&quot;,&quot;points&quot;:[{&quot;t&quot;:0,&quot;v&quot;:0.3},{&quot;t&quot;:55,&quot;v&quot;:0.3},{&quot;t&quot;:56,&quot;v&quot;:0}]}]}"></audio>
+      <audio data-hf-id="hf-2pzn" id="sfx-shell" src="assets/sfx/interface/drop_001.ogg" data-start="4.45" data-duration="0.11" data-track-index="11" data-volume="0.5"></audio>
+      <audio data-hf-id="hf-xrd4" id="sfx-node-first" src="assets/sfx/interface/drop_001.ogg" data-start="4.88" data-duration="0.11" data-track-index="12" data-volume="0.45"></audio>
+      <audio data-hf-id="hf-xoh9" id="sfx-node-last" src="assets/sfx/interface/drop_001.ogg" data-start="7.61" data-duration="0.11" data-track-index="11" data-volume="0.45"></audio>
+      <audio data-hf-id="hf-m8ww" id="sfx-pick" src="assets/sfx/interface/click_003.ogg" data-start="11.46" data-duration="0.01" data-track-index="12" data-volume="0.65"></audio>
+      <audio data-hf-id="hf-kdqv" id="sfx-drop" src="assets/sfx/interface/drop_001.ogg" data-start="12.55" data-duration="0.11" data-track-index="11" data-volume="0.55"></audio>
+      <audio data-hf-id="hf-0pa3" id="sfx-connect" src="assets/sfx/interface/click_003.ogg" data-start="14.73" data-duration="0.01" data-track-index="12" data-volume="0.6"></audio>
+      <audio data-hf-id="hf-k66h" id="sfx-select" src="assets/sfx/interface/click_003.ogg" data-start="16.93" data-duration="0.01" data-track-index="11" data-volume="0.65"></audio>
+      <audio data-hf-id="hf-e24a" id="sfx-tog-on" src="assets/sfx/interface/switch_007.ogg" data-start="18.56" data-duration="0.6" data-track-index="12" data-volume="0.5"></audio>
+      <audio data-hf-id="hf-pyzd" id="sfx-tog-off" src="assets/sfx/interface/switch_007.ogg" data-start="20.19" data-duration="0.6" data-track-index="11" data-volume="0.45"></audio>
+      <audio data-hf-id="hf-4pzn" id="sfx-issue" src="assets/sfx/interface/click_003.ogg" data-start="23.46" data-duration="0.01" data-track-index="12" data-volume="0.65"></audio>
+      <audio data-hf-id="hf-35qh" id="sfx-delete" src="assets/sfx/impact/impactSoft_medium_001.ogg" data-start="24.56" data-duration="0.18" data-track-index="11" data-volume="0.5"></audio>
+      <audio data-hf-id="hf-kxs2" id="sfx-run" src="assets/sfx/interface/click_003.ogg" data-start="32.74" data-duration="0.01" data-track-index="12" data-volume="0.7"></audio>
+      <audio data-hf-id="hf-xrkd" id="sfx-approve" src="assets/sfx/interface/click_003.ogg" data-start="37.11" data-duration="0.01" data-track-index="11" data-volume="0.7"></audio>
+      <audio data-hf-id="hf-k1tv" id="sfx-bell" src="assets/sfx/impact/impactBell_heavy_000.ogg" data-start="38.73" data-duration="1.5" data-track-index="12" data-volume="0.5"></audio>
+      <audio data-hf-id="hf-ty8m" id="sfx-row" src="assets/sfx/interface/click_003.ogg" data-start="42.56" data-duration="0.01" data-track-index="11" data-volume="0.6"></audio>
+      <audio data-hf-id="hf-pemx" id="sfx-key-1" src="assets/sfx/interface/drop_001.ogg" data-start="46.9" data-duration="0.11" data-track-index="12" data-volume="0.45"></audio>
+      <audio data-hf-id="hf-r85x" id="sfx-key-4" src="assets/sfx/interface/drop_001.ogg" data-start="50.17" data-duration="0.11" data-track-index="11" data-volume="0.45"></audio>
+      <audio data-hf-id="hf-wqe9" id="sfx-title" src="assets/sfx/impact/impactSoft_medium_001.ogg" data-start="51.24" data-duration="0.18" data-track-index="12" data-volume="0.6"></audio>
+    </div>
+
+    <script>
+      // ------------------------------------------------------------------
+      // Painted sky — seeded, deterministic. Cobalt impasto strokes over a
+      // near-black night, cream/peach cloud banks along the bottom, grain.
+      // ------------------------------------------------------------------
+      function mulberry32(a) {
+        return function () {
+          a |= 0; a = (a + 0x6d2b79f5) | 0;
+          var t = Math.imul(a ^ (a >>> 15), 1 | a);
+          t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+          return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+        };
+      }
+      function skySVG(p, seed) {
+        var r = mulberry32(seed);
+        var pick = function (arr) { return arr[Math.floor(r() * arr.length)]; };
+        var blues = ['#0a1230', '#0b1a45', '#122a6b', '#1c3f96', '#2b4a9e', '#3a63c8', '#5b84e6', '#0a1230', '#122a6b', '#1c3f96'];
+        var s = '';
+        for (var i = 0; i < 14; i++) {
+          s += '<ellipse cx="' + (r() * 2100 - 90).toFixed(0) + '" cy="' + (r() * 620).toFixed(0) + '" rx="' + (220 + r() * 420).toFixed(0) + '" ry="' + (60 + r() * 120).toFixed(0) + '" fill="' + pick(blues) + '" opacity="' + (0.35 + r() * 0.4).toFixed(2) + '" transform="rotate(' + (-10 + r() * 20).toFixed(1) + ' 960 400)"/>';
+        }
+        for (var j = 0; j < 110; j++) {
+          var x = r() * 2200 - 140, y = r() * 720 - 30, w = 120 + r() * 520, h = 8 + r() * 26, rot = -14 + r() * 26;
+          var c = pick(blues.concat(['#7fb0ff', '#0e152b', '#05070f']));
+          s += '<rect x="' + x.toFixed(0) + '" y="' + y.toFixed(0) + '" width="' + w.toFixed(0) + '" height="' + h.toFixed(0) + '" rx="' + (h / 2).toFixed(1) + '" fill="' + c + '" opacity="' + (0.3 + r() * 0.6).toFixed(2) + '" transform="rotate(' + rot.toFixed(1) + ' ' + (x + w / 2).toFixed(0) + ' ' + (y + h / 2).toFixed(0) + ')"/>';
+        }
+        var strokes = s;
+        var creams = ['#f3e8d6', '#e7d5b8', '#f0b98e', '#d9c3a0', '#c9ad86', '#fbf6ec', '#e7d5b8'];
+        var cl = '';
+        for (var k = 0; k < 42; k++) {
+          var side = r() < 0.5 ? -1 : 1;
+          var cx = 960 + side * (200 + r() * 900) + (r() - 0.5) * 300;
+          var cy = 720 + r() * 380 + Math.abs(960 - cx) * -0.12;
+          var rx = 120 + r() * 330, ry = 40 + r() * 140;
+          cl += '<ellipse cx="' + cx.toFixed(0) + '" cy="' + cy.toFixed(0) + '" rx="' + rx.toFixed(0) + '" ry="' + ry.toFixed(0) + '" fill="' + pick(creams) + '" opacity="' + (0.45 + r() * 0.5).toFixed(2) + '"/>';
+        }
+        for (var m = 0; m < 16; m++) {
+          cl += '<ellipse cx="' + (r() * 2000 - 40).toFixed(0) + '" cy="' + (880 + r() * 260).toFixed(0) + '" rx="' + (160 + r() * 300).toFixed(0) + '" ry="' + (30 + r() * 70).toFixed(0) + '" fill="#8a93ae" opacity="' + (0.25 + r() * 0.35).toFixed(2) + '"/>';
+        }
+        return (
+          '<svg viewBox="0 0 1920 1080" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">' +
+          '<defs>' +
+          '<filter id="' + p + '-strokes" x="-10%" y="-10%" width="120%" height="120%" color-interpolation-filters="sRGB">' +
+          '<feTurbulence type="fractalNoise" baseFrequency="0.0035 0.028" numOctaves="3" seed="' + seed + '" result="n"/>' +
+          '<feDisplacementMap in="SourceGraphic" in2="n" scale="46" xChannelSelector="R" yChannelSelector="G"/>' +
+          '</filter>' +
+          '<filter id="' + p + '-clouds" x="-15%" y="-15%" width="130%" height="130%" color-interpolation-filters="sRGB">' +
+          '<feTurbulence type="fractalNoise" baseFrequency="0.007 0.013" numOctaves="4" seed="' + (seed + 3) + '" result="n"/>' +
+          '<feDisplacementMap in="SourceGraphic" in2="n" scale="95" xChannelSelector="R" yChannelSelector="G"/>' +
+          '<feGaussianBlur stdDeviation="1.6"/>' +
+          '</filter>' +
+          '<filter id="' + p + '-grain" x="0" y="0" width="100%" height="100%">' +
+          '<feTurbulence type="fractalNoise" baseFrequency="0.85" numOctaves="2" seed="' + (seed + 9) + '"/>' +
+          '<feColorMatrix type="saturate" values="0"/>' +
+          '<feComponentTransfer><feFuncA type="linear" slope="0.09"/></feComponentTransfer>' +
+          '</filter>' +
+          '<linearGradient id="' + p + '-base" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#05070f"/><stop offset="0.55" stop-color="#0a1230"/><stop offset="1" stop-color="#1b2850"/></linearGradient>' +
+          '<radialGradient id="' + p + '-halo" cx="0.5" cy="0.42" r="0.5"><stop offset="0" stop-color="#fbf6ec" stop-opacity="0.22"/><stop offset="0.45" stop-color="#e8b75a" stop-opacity="0.08"/><stop offset="1" stop-color="#05070f" stop-opacity="0"/></radialGradient>' +
+          '</defs>' +
+          '<rect width="1920" height="1080" fill="url(#' + p + '-base)"/>' +
+          '<g filter="url(#' + p + '-strokes)">' + strokes + '</g>' +
+          '<rect width="1920" height="1080" fill="url(#' + p + '-halo)"/>' +
+          '<g filter="url(#' + p + '-clouds)">' + cl + '</g>' +
+          '<rect width="1920" height="1080" filter="url(#' + p + '-grain)" style="mix-blend-mode: overlay"/>' +
+          '</svg>'
+        );
+      }
+      document.getElementById('s1-sky').innerHTML = skySVG('k1', 7);
+      document.getElementById('s3-sky').innerHTML = skySVG('k3', 7);
+
+      // ------------------------------------------------------------------
+      // Static content (copy from docs/CONTENT.md, geometry from DESIGN.md)
+      // ------------------------------------------------------------------
+      var ICONS = {
+        trigger: '<path d="M13 2 4 14h6l-1 8 9-12h-6z"/>',
+        condition: '<path d="M4 12 9 7l5 5-5 5-5-5Z"/><path d="M14 12h3M17 12l3-4M17 12l3 4"/>',
+        action: '<circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M4.2 4.2l2.1 2.1M17.7 17.7l2.1 2.1M2 12h3M19 12h3M4.2 19.8l2.1-2.1M17.7 6.3l2.1-2.1"/>',
+        approval: '<path d="M12 3 19 6v5c0 5-3.5 8.5-7 10-3.5-1.5-7-5-7-10V6Z"/><path d="M9 12l2 2 4-4"/>',
+        resolution: '<circle cx="12" cy="12" r="9"/><path d="M8.5 12.5l2.5 2.5 4.5-5"/>',
+      };
+      var ACCENT = { trigger: '#F0B98E', condition: '#5B84E6', action: '#7FB0FF', approval: '#E8B75A', resolution: '#79D3A6' };
+      function icon(type, cls) {
+        return '<svg class="' + cls + '" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" style="color:' + ACCENT[type] + '">' + ICONS[type] + '</svg>';
+      }
+      var PALETTE = [
+        ['trigger', 'Trigger', 'The signal that opens the incident.'],
+        ['condition', 'Condition', 'A fork in the road, decided by the payload.'],
+        ['action', 'Action', 'A step the response actually takes.'],
+        ['approval', 'Approval', 'A deliberate pause for a human decision.'],
+        ['resolution', 'Resolution', 'Where a path ends and the record closes.'],
+      ];
+      document.getElementById('palette-cards').innerHTML = PALETTE.map(function (p) {
+        return '<div class="pcard" id="pc-' + p[0] + '" style="--accent:' + ACCENT[p[0]] + '"><div class="hl" id="pchl-' + p[0] + '"></div>' + icon(p[0], 'ico') + '<div class="lbl">' + p[1] + '</div><div class="desc">' + p[2] + '</div></div>';
+      }).join('');
+
+      var CANVAS_X = 280, CANVAS_Y = 64, NW = 300, NH = 112;
+      var NODES = [
+        { id: 'T', type: 'trigger', label: 'Checkout API alerts', meta: '<b>PagerDuty webhook</b> · severity ≥ high', x: 460, y: 60, at: 4.91 },
+        { id: 'C', type: 'condition', label: 'Is this critical?', meta: '<b>severity</b> equals <b>critical</b>', x: 460, y: 230, at: 5.34 },
+        { id: 'P', type: 'action', label: 'Page primary on-call', meta: 'Page on-call · <b>sre-primary</b> · 1.2s', x: 100, y: 400, at: 6.0 },
+        { id: 'A', type: 'approval', label: 'Approve rollback', meta: '<b>Incident commander</b> · 5 min · manual', x: 100, y: 560, at: 6.56 },
+        { id: 'R', type: 'action', label: 'Roll back checkout-api', meta: 'Rollback deploy · <b>checkout-api</b> · 2.3s', x: 100, y: 720, at: 7.09 },
+        { id: 'Z', type: 'resolution', label: 'Resolved', meta: '<span class="rchip" id="rchip-Z"><span class="fill"></span><span class="txt">RESOLVED</span><span class="on">RESOLVED</span></span>&nbsp; <span class="rchip pm"><span class="txt">PM</span></span>&nbsp; postmortem', x: 100, y: 880, at: 7.64 },
+        { id: 'K', type: 'action', label: 'Open tracking ticket', meta: 'Create ticket · <b>OPS board</b> · 0.9s', x: 820, y: 400, at: 7.64 },
+        { id: 'N', type: 'action', label: 'Notify #incidents', meta: 'Post to Slack · <b>#incidents</b> · 0.6s', x: 820, y: 560, at: 7.64 },
+        { id: 'M', type: 'resolution', label: 'Mitigated', meta: '<span class="rchip"><span class="txt">MITIGATED</span></span>&nbsp; pending review', x: 820, y: 720, at: 7.64 },
+        { id: 'S', type: 'action', label: 'Scale checkout-api', meta: 'Scale service · <b>checkout-api</b> · 1.5s', x: 460, y: 560, at: -1 },
+      ];
+      var byId = {};
+      NODES.forEach(function (n) { byId[n.id] = n; });
+      var EDGES = [
+        { id: 'e-TC', from: 'T', to: 'C', label: 'On alert', at: 5.34 },
+        { id: 'e-CP', from: 'C', to: 'P', label: 'Critical', handle: 'true', at: 6.0 },
+        { id: 'e-CK', from: 'C', to: 'K', label: 'Not critical', handle: 'false', at: 7.64 },
+        { id: 'e-PA', from: 'P', to: 'A', label: 'Paged', at: 6.56 },
+        { id: 'e-AR', from: 'A', to: 'R', label: 'Approved', at: 7.09 },
+        { id: 'e-RZ', from: 'R', to: 'Z', label: 'Rolled back', at: 7.64 },
+        { id: 'e-KN', from: 'K', to: 'N', label: 'Filed', at: 7.64 },
+        { id: 'e-NM', from: 'N', to: 'M', label: 'Posted', at: 7.64 },
+        { id: 'e-SZ', from: 'S', to: 'Z', label: '', at: -1 },
+      ];
+      function nodeHTML(n) {
+        var isApproval = n.type === 'approval';
+        return (
+          '<div class="node ' + n.type + '" id="n-' + n.id + '" style="left:' + n.x + 'px;top:' + n.y + 'px;--accent:' + ACCENT[n.type] + '">' +
+          '<div class="ring running" id="ring-run-' + n.id + '"></div><div class="ring wait" id="ring-wait-' + n.id + '"></div><div class="ring ok" id="ring-ok-' + n.id + '"></div><div class="ring skip" id="ring-skip-' + n.id + '"></div><div class="ring sel" id="ring-sel-' + n.id + '"></div>' +
+          '<div class="bar"></div>' +
+          '<div class="hd">' + icon(n.type, 'ico') + '<div class="lbl">' + n.label + '</div><div class="glyphs">' +
+          '<span class="gl idle" id="gl-idle-' + n.id + '" data-layout-allow-overlap>•</span><span class="gl running" id="gl-run-' + n.id + '" data-layout-allow-overlap>▷</span><span class="gl wait" id="gl-wait-' + n.id + '" data-layout-allow-overlap>⏸</span><span class="gl ok" id="gl-ok-' + n.id + '" data-layout-allow-overlap>✓</span><span class="gl skip" id="gl-skip-' + n.id + '" data-layout-allow-overlap>⤼</span>' +
+          '</div></div>' +
+          '<div class="meta">' + n.meta + '</div>' +
+          (n.id === 'P' ? '<div class="willfail" id="willfail" data-layout-allow-overlap>WILL FAIL</div>' : '') +
+          '<div class="ft">' +
+          '<div class="st running" id="st-run-' + n.id + '" data-layout-allow-overlap>running <span class="off" id="off-run-' + n.id + '"></span></div>' +
+          '<div class="st ok" id="st-ok-' + n.id + '" data-layout-allow-overlap>success <span class="off" id="off-ok-' + n.id + '"></span></div>' +
+          '<div class="st wait" id="st-wait-' + n.id + '" data-layout-allow-overlap>awaiting approval</div>' +
+          '<div class="st" id="st-skip-' + n.id + '" data-layout-allow-overlap>skipped</div>' +
+          (isApproval ? '<div class="approve-btns" id="abtns" data-layout-allow-overlap><div class="abtn approve" id="btn-approve">Approve</div><div class="abtn reject">Reject</div></div>' : '') +
+          '</div>' +
+          (n.type !== 'resolution' ? '<div class="handle" id="hd-' + n.id + '"></div>' : '') +
+          '</div>'
+        );
+      }
+      document.getElementById('nodes').innerHTML = NODES.map(nodeHTML).join('');
+
+      function edgePath(e) {
+        var s = byId[e.from], t = byId[e.to];
+        var x0 = s.x + NW / 2, y0 = s.y + NH;
+        if (e.handle === 'true') x0 = s.x + 30;
+        if (e.handle === 'false') x0 = s.x + NW - 30;
+        var x1 = t.x + NW / 2, y1 = t.y;
+        var d = Math.max(30, (y1 - y0) * 0.6);
+        return { d: 'M' + x0 + ' ' + y0 + ' C' + x0 + ' ' + (y0 + d) + ' ' + x1 + ' ' + (y1 - d) + ' ' + x1 + ' ' + y1, mx: (x0 + x1) / 2, my: (y0 + y1) / 2 };
+      }
+      var svg = document.getElementById('edges');
+      var pillsHTML = '';
+      EDGES.forEach(function (e) {
+        var p = edgePath(e);
+        var base = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+        base.setAttribute('d', p.d); base.setAttribute('class', 'edge-base'); base.setAttribute('id', e.id); base.setAttribute('pathLength', '1');
+        svg.appendChild(base);
+        var flow = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+        flow.setAttribute('d', p.d); flow.setAttribute('class', 'edge-flow'); flow.setAttribute('id', e.id + '-flow');
+        svg.appendChild(flow);
+        if (!e.label) return;
+        var cls = e.handle === 'true' ? 'pill true' : 'pill';
+        pillsHTML += '<div class="' + cls + '" id="pill-' + e.id + '" style="left:' + p.mx + 'px;top:' + p.my + 'px">' +
+          (e.handle === 'true' ? '<span class="pill-fill" id="pillfill-' + e.id + '"></span>' : '') +
+          '<span class="txt">' + e.label + '</span>' +
+          (e.handle === 'true' ? '<span class="txt-on" id="pillon-' + e.id + '" data-layout-allow-overlap>' + e.label + '</span>' : '') + '</div>';
+      });
+      var dragLine = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+      dragLine.setAttribute('id', 'drag-line');
+      svg.appendChild(dragLine);
+      document.getElementById('pills').innerHTML = pillsHTML;
+
+      var RUN = 32.74; // beat-locked: Run click (strong cue)
+      var ROWS = [
+        { at: RUN + 0.06, t: '+0.0s', g: '▷', gc: 'g-run', m: 'Trigger fired — <b>Checkout API alerts</b>' },
+        { at: RUN + 1.11, t: '+0.1s', g: '⑂', gc: 'br', m: 'severity equals critical → <b>true</b><span class="badge">TRUE</span>' },
+        { at: RUN + 1.21, t: '+0.2s', g: '▷', gc: 'g-run', m: 'Action started — <b>Page primary on-call</b>' },
+        { at: RUN + 2.21, t: '+1.4s', g: '✓', gc: 'ok', m: 'Action finished — <b>Page primary on-call</b> (1.2s)' },
+        { at: RUN + 2.31, t: '+1.4s', g: '⏸', gc: 'wait', m: 'Approval requested — <b>Approve rollback</b> (Incident commander)' },
+        { at: RUN + 4.42, t: '+1.8s', g: '✓', gc: 'ok', m: 'Approval granted — <b>Approve rollback</b>' },
+        { at: RUN + 4.54, t: '+1.8s', g: '▷', gc: 'g-run', m: 'Action started — <b>Roll back checkout-api</b>' },
+        { at: RUN + 5.51, t: '+4.1s', g: '✓', gc: 'ok', m: 'Action finished — <b>Roll back checkout-api</b> (2.3s)' },
+        { at: RUN + 6.02, t: '+4.3s', g: '✓', gc: 'ok', m: 'Resolution reached — <b>Resolved</b> (resolved)' },
+      ];
+      document.getElementById('rows').innerHTML = ROWS.map(function (r, i) {
+        return '<div class="row" id="row-' + i + '"><span class="hover" id="rowhv-' + i + '"></span><span class="t">' + r.t + '</span><span class="g ' + r.gc + '">' + r.g + '</span><span class="m">' + r.m + '</span></div>';
+      }).join('');
+
+      var CAPS = [
+        { n: '01', t: 'Five node types.', d: 'Trigger, condition, action, approval, resolution — the whole response, drawn on one canvas.', a: 4.6, b: 10.2 },
+        { n: '02', t: 'Drag, drop, connect.', d: 'Pull a node from the palette, wire it by its handles. Conditions split into TRUE and FALSE.', a: 10.5, b: 16.2 },
+        { n: '03', t: 'Configure in the inspector.', d: 'Real fields on every node: target, simulated duration, and a failure toggle for the unhappy path.', a: 16.5, b: 22.2 },
+        { n: '04', t: 'Validation before you run.', d: 'Unreachable nodes, dead ends, missing branches — flagged and fixable before Run is allowed.', a: 22.5, b: 28.2 },
+        { n: '05', t: 'Simulate any incident.', d: 'Edit the payload by hand, as JSON, or start from a preset.', a: 28.5, b: 32.5 },
+        { n: '06', t: 'Watch it run, node by node.', d: 'Nothing is paged for real — every action is simulated.', a: 32.9, b: 35.4 },
+        { n: '07', t: 'Pause for a human.', d: 'Approvals wait for a real decision: approve, reject, or let the timeout decide.', a: 35.7, b: 39.6 },
+        { n: '08', t: 'A timeline you can replay.', d: 'Every event, offset from run start. Step, pause, or run it instant. Click a row to select its node.', a: 40.5, b: 45.6 },
+        { n: '09', t: 'Local-first. Undo everything.', d: 'Autosaved to this browser. ⌘Z undoes any edit — even an import. Export and import JSON.', a: 46.0, b: 50.9 },
+      ];
+      document.getElementById('caps').innerHTML = CAPS.map(function (c, i) {
+        return '<div class="cap" id="cap-' + i + '" data-layout-allow-overlap><span class="cn">' + c.n + ' / 09</span><div class="ct">' + c.t + '</div><div class="cd">' + c.d + '</div></div>';
+      }).join('');
+
+      // ------------------------------------------------------------------
+      // Layout constants measured once at setup (static layout, untransformed)
+      // ------------------------------------------------------------------
+      function centerOf(id) {
+        var b = document.getElementById(id).getBoundingClientRect();
+        return { x: b.left + b.width / 2, y: b.top + b.height / 2 };
+      }
+      var RUN_XY = centerOf('btn-run');
+      var PAL_ACTION = centerOf('pc-action');
+      var TOGGLE_XY = centerOf('tg-fail');
+      var ISSUE_XY = centerOf('issue-1');
+      var ROW4_XY = centerOf('row-4');
+      var CAM = { ox: 250, oy: 616, s: 1.3, tx: 140, ty: 110 };
+      function toFrame(cx, cy, cam) {
+        var s = cam ? CAM.s : 1, tx = cam ? CAM.tx : 0, ty = cam ? CAM.ty : 0;
+        return { x: CANVAS_X + CAM.ox + s * (cx - CAM.ox) + tx, y: CANVAS_Y + CAM.oy + s * (cy - CAM.oy) + ty };
+      }
+      var A = byId.A, S = byId.S, P = byId.P, Z = byId.Z;
+      var approveF = toFrame(A.x + 18 + 41, A.y + NH - 10 - 14, true);
+      var sDropF = toFrame(S.x + NW / 2, S.y + NH / 2, false);
+      var sHandleF = toFrame(S.x + NW / 2, S.y + NH, false);
+      var zTopF = toFrame(Z.x + NW / 2, Z.y, false);
+      var pCardF = toFrame(P.x + 120, P.y + 40, false);
+      var parkF = toFrame(A.x + NW + 140, A.y + 40, false);
+      var emptyF = toFrame(700, 330, false);
+      function cur(p) { return { x: p.x - 3, y: p.y - 2 }; }
+
+      // ------------------------------------------------------------------
+      // Timeline
+      // ------------------------------------------------------------------
+      var tl = gsap.timeline({ paused: true });
+      tl.set('#cursor', { opacity: 0, x: 900, y: 700 }, 0);
+      tl.set('#press', { opacity: 0, x: RUN_XY.x, y: RUN_XY.y, scale: 0.4 }, 0);
+      tl.set('#ghost', { opacity: 0, x: PAL_ACTION.x - 110, y: PAL_ACTION.y - 30 }, 0);
+      tl.set('#n-S', { opacity: 0 }, 0);
+      tl.set('#e-SZ', { opacity: 0 }, 0);
+      tl.set('#keycap', { opacity: 0 }, 0);
+
+      function press(p, t) {
+        tl.fromTo('#press', { x: p.x, y: p.y, scale: 0.4, opacity: 0.9 }, { scale: 1.3, opacity: 0, duration: 0.45, ease: 'power2.out', immediateRender: false }, t);
+      }
+      function moveCursor(p, t, dur) {
+        tl.to('#cursor', { x: cur(p).x, y: cur(p).y, duration: dur, ease: 'power2.inOut' }, t);
+      }
+
+      // ---- Scene 1: hook (0 – 5.1) ----
+      tl.fromTo('#s1-sky', { scale: 1.06, xPercent: 0.4 }, { scale: 1.0, xPercent: 0, duration: 5.1, ease: 'none' }, 0);
+      tl.fromTo('#hook-1', { opacity: 0, y: 26 }, { opacity: 1, y: 0, duration: 1.1, ease: 'power3.out' }, 0.56); // beat 0.56
+      tl.fromTo('#hook-2', { opacity: 0, y: 18 }, { opacity: 1, y: 0, duration: 1.0, ease: 'power3.out' }, 1.64); // beat 1.64
+
+      // ---- Scene 2: shell + assemble + five node types (4.39 – 10.37) ----
+      tl.fromTo('#s2-wrap', { opacity: 0 }, { opacity: 1, duration: 0.7, ease: 'power2.inOut' }, 4.39);
+      tl.fromTo('.palette', { x: -24, opacity: 0 }, { x: 0, opacity: 1, duration: 0.6, ease: 'power3.out' }, 4.5);
+      tl.fromTo('.side', { x: 24, opacity: 0 }, { x: 0, opacity: 1, duration: 0.6, ease: 'power3.out' }, 4.55);
+      tl.fromTo('.topbar', { y: -12, opacity: 0 }, { y: 0, opacity: 1, duration: 0.5, ease: 'power3.out' }, 4.45);
+      tl.fromTo('#controls', { opacity: 0, y: 8 }, { opacity: 1, y: 0, duration: 0.5 }, 5.2);
+      NODES.forEach(function (n) {
+        if (n.at < 0) return;
+        tl.fromTo('#n-' + n.id, { opacity: 0, y: 14, scale: 0.98 }, { opacity: 1, y: 0, scale: 1, duration: 0.5, ease: 'power3.out' }, n.at); // beat-grid 4.91…7.64
+      });
+      EDGES.forEach(function (e) {
+        if (e.at < 0) return;
+        tl.fromTo('#' + e.id, { strokeDasharray: '1 1', strokeDashoffset: 1, opacity: 1 }, { strokeDashoffset: 0, duration: 0.45, ease: 'power2.inOut' }, e.at - 0.15);
+        tl.fromTo('#pill-' + e.id, { opacity: 0, scale: 0.9 }, { opacity: 1, scale: 1, duration: 0.3, ease: 'power2.out' }, e.at + 0.2);
+      });
+      [['trigger', 4.91], ['condition', 5.34], ['action', 6.0], ['approval', 6.56], ['resolution', 7.64]].forEach(function (h) {
+        tl.fromTo('#pchl-' + h[0], { opacity: 0 }, { opacity: 1, duration: 0.25 }, h[1]);
+        tl.to('#pchl-' + h[0], { opacity: 0, duration: 0.6 }, h[1] + 1.1);
+      });
+      CAPS.forEach(function (c, i) {
+        tl.fromTo('#cap-' + i, { opacity: 0, y: -10 }, { opacity: 1, y: 0, duration: 0.45, ease: 'power3.out' }, c.a);
+        tl.to('#cap-' + i, { opacity: 0, y: -6, duration: 0.35, ease: 'power2.in' }, c.b);
+      });
+
+      // ---- Scene 3: drag, drop, connect (10.37 – 16.38) ----
+      tl.to('#cursor', { opacity: 1, duration: 0.3 }, 10.5);
+      moveCursor(PAL_ACTION, 10.5, 0.85);
+      tl.to('#pc-action', { scale: 0.98, duration: 0.08, yoyo: true, repeat: 1 }, 11.46); // beat 11.46
+      press(PAL_ACTION, 11.46);
+      tl.to('#ghost', { opacity: 1, duration: 0.2 }, 11.5);
+      tl.to('#ghost', { x: sDropF.x - 110, y: sDropF.y - 30, duration: 1.05, ease: 'power2.inOut' }, 11.5);
+      moveCursor(sDropF, 11.5, 1.05);
+      tl.to('#ghost', { opacity: 0, duration: 0.15 }, 12.55); // beat 12.55 — drop
+      tl.fromTo('#n-S', { opacity: 0, scale: 0.96 }, { opacity: 1, scale: 1, duration: 0.4, ease: 'power3.out', immediateRender: false }, 12.55);
+      tl.fromTo('#toast-1', { opacity: 0, y: 12 }, { opacity: 1, y: 0, duration: 0.3 }, 12.6);
+      tl.to('#toast-1', { opacity: 0, duration: 0.25 }, 15.6);
+      tl.to('#chip-valid', { opacity: 0, duration: 0.25 }, 12.7);
+      tl.to('#chip-issue', { opacity: 1, duration: 0.3 }, 12.8);
+      tl.to('#btn-run', { opacity: 0.45, duration: 0.3 }, 12.8);
+      moveCursor(sHandleF, 13.11, 0.5);
+      press(sHandleF, 13.64);
+      tl.set('#drag-line', { attr: { x1: S.x + NW / 2, y1: S.y + NH, x2: S.x + NW / 2, y2: S.y + NH } }, 13.64);
+      tl.to('#drag-line', { opacity: 1, duration: 0.1 }, 13.64);
+      tl.to('#drag-line', { attr: { x2: Z.x + NW / 2, y2: Z.y }, duration: 1.09, ease: 'power2.inOut' }, 13.64);
+      moveCursor(zTopF, 13.64, 1.09);
+      tl.to('#drag-line', { opacity: 0, duration: 0.1 }, 14.73); // beat 14.73 — release
+      press(zTopF, 14.73);
+      tl.fromTo('#e-SZ', { strokeDasharray: '1 1', strokeDashoffset: 1, opacity: 1 }, { strokeDashoffset: 0, duration: 0.35, ease: 'power2.out', immediateRender: false }, 14.73);
+      moveCursor(parkF, 15.1, 0.7);
+
+      // ---- Scene 4: inspector (16.38 – 22.37) ----
+      moveCursor(pCardF, 16.4, 0.5);
+      press(pCardF, 16.93); // beat 16.93 — select P
+      tl.fromTo('#ring-sel-P', { opacity: 0 }, { opacity: 1, duration: 0.2 }, 16.93);
+      tl.to('#v-empty', { opacity: 0, duration: 0.2 }, 16.95);
+      tl.fromTo('#v-form', { opacity: 0, y: 8 }, { opacity: 1, y: 0, duration: 0.4, ease: 'power3.out' }, 17.05);
+      moveCursor(TOGGLE_XY, 17.6, 0.85);
+      press(TOGGLE_XY, 18.56); // strong cue 18.56 — toggle on
+      tl.to('#tg-fail-knob', { x: 20, duration: 0.2, ease: 'power2.out' }, 18.56);
+      tl.to('#tg-fail-on', { opacity: 1, duration: 0.2 }, 18.56);
+      tl.fromTo('#willfail', { opacity: 0, scale: 0.9 }, { opacity: 1, scale: 1, duration: 0.3, ease: 'back.out(2)' }, 18.6);
+      press(TOGGLE_XY, 20.19); // beat 20.19 — toggle off
+      tl.to('#tg-fail-knob', { x: 0, duration: 0.2, ease: 'power2.out' }, 20.19);
+      tl.to('#tg-fail-on', { opacity: 0, duration: 0.2 }, 20.19);
+      tl.to('#willfail', { opacity: 0, duration: 0.2 }, 20.19);
+      moveCursor(emptyF, 20.6, 0.6);
+      press(emptyF, 21.28); // beat 21.28 — deselect
+      tl.to('#ring-sel-P', { opacity: 0, duration: 0.2 }, 21.28);
+      tl.to('#v-form', { opacity: 0, duration: 0.2 }, 21.3);
+      tl.to('#v-empty', { opacity: 1, duration: 0.3 }, 21.45);
+
+      // ---- Scene 5: validation (22.37 – 28.37) ----
+      tl.to('#tab-insp', { color: '#8a93ae', duration: 0.2 }, 22.37);
+      tl.to('#ul-insp', { opacity: 0, duration: 0.2 }, 22.37);
+      tl.to('#tab-run', { color: '#f3e8d6', duration: 0.2 }, 22.37);
+      tl.to('#ul-run', { opacity: 1, duration: 0.2 }, 22.4);
+      tl.to('#v-empty', { opacity: 0, duration: 0.2 }, 22.37);
+      tl.fromTo('#v-run', { opacity: 0, y: 8 }, { opacity: 1, y: 0, duration: 0.4, ease: 'power3.out' }, 22.45);
+      tl.fromTo('#issue-1', { opacity: 0 }, { opacity: 1, duration: 0.3 }, 22.6);
+      tl.fromTo('#tl-empty', { opacity: 0 }, { opacity: 1, duration: 0.3 }, 22.7);
+      moveCursor(ISSUE_XY, 22.7, 0.65);
+      press(ISSUE_XY, 23.46); // beat 23.46 — click the issue → selects the node
+      tl.fromTo('#ring-sel-S', { opacity: 0 }, { opacity: 1, duration: 0.2 }, 23.46);
+      tl.fromTo('#keycap', { opacity: 0, y: 8 }, { opacity: 1, y: 0, duration: 0.2, immediateRender: false }, 24.4);
+      tl.to('#keycap', { opacity: 0, duration: 0.3 }, 25.4);
+      tl.to('#n-S', { opacity: 0, scale: 0.96, duration: 0.25 }, 24.56); // strong cue 24.56 — Delete
+      tl.to('#e-SZ', { opacity: 0, duration: 0.25 }, 24.56);
+      tl.fromTo('#toast-2', { opacity: 0, y: 12 }, { opacity: 1, y: 0, duration: 0.3 }, 24.65);
+      tl.to('#toast-2', { opacity: 0, duration: 0.25 }, 27.6);
+      tl.to('#issue-1', { opacity: 0, duration: 0.25 }, 25.0);
+      tl.to('#issue-ok', { opacity: 1, duration: 0.3 }, 25.11); // beat 25.11
+      tl.to('#chip-issue', { opacity: 0, duration: 0.25 }, 25.11);
+      tl.to('#chip-valid', { opacity: 1, duration: 0.3 }, 25.2);
+      tl.to('#btn-run', { opacity: 1, duration: 0.3 }, 25.2);
+      moveCursor(parkF, 25.6, 0.7);
+
+      // ---- Scene 6: payload (28.37 – 32.74) ----
+      [0, 1, 2].forEach(function (i) {
+        tl.fromTo('#preset-' + i, { scale: 0.96 }, { scale: 1.04, duration: 0.25, yoyo: true, repeat: 1, ease: 'sine.inOut' }, 28.92 + i * 0.55); // beat-grid
+      });
+      tl.fromTo('#payload', { boxShadow: '0 0 0 0 rgba(232,183,90,0)' }, { boxShadow: '0 0 0 1.5px rgba(232,183,90,0.55)', duration: 0.4 }, 28.92);
+      tl.to('#payload', { boxShadow: '0 0 0 0 rgba(232,183,90,0)', duration: 0.6 }, 31.6);
+      moveCursor(RUN_XY, 31.6, 1.0);
+
+      // ---- Scene 7: run (32.74 – 40.38) ----
+      tl.to('#btn-run', { scale: 0.96, duration: 0.08, yoyo: true, repeat: 1 }, RUN); // beat-locked: 32.74
+      press(RUN_XY, RUN);
+      moveCursor(parkF, RUN + 0.4, 1.4);
+      function swapChip(hideId, showId, t) {
+        tl.to('#' + hideId, { opacity: 0, duration: 0.2 }, t);
+        tl.to('#' + showId, { opacity: 1, duration: 0.25 }, t + 0.05);
+      }
+      swapChip('st-idle', 'st-running', RUN);
+      swapChip('st-running', 'st-wait', RUN + 2.19);
+      swapChip('st-wait', 'st-running2', RUN + 4.37);
+      swapChip('st-running2', 'st-done', RUN + 5.99);
+      tl.to('#tl-empty', { opacity: 0, duration: 0.25 }, RUN);
+      tl.to('#p-run', { opacity: 0.5, duration: 0.25 }, RUN);
+      tl.to('#p-run', { opacity: 1, duration: 0.25 }, RUN + 5.99);
+      tl.to('#chip-valid', { opacity: 0.55, duration: 0.3 }, RUN);
+
+      function setRunning(id, t0, t1, off) {
+        var pulses = Math.max(0, Math.floor((t1 - t0) / 0.8) - 1);
+        tl.to('#gl-idle-' + id, { opacity: 0, duration: 0.15 }, t0);
+        tl.to('#gl-run-' + id, { opacity: 1, duration: 0.15 }, t0);
+        tl.fromTo('#ring-run-' + id, { opacity: 0 }, { opacity: 1, duration: 0.2 }, t0);
+        if (pulses > 0) tl.to('#ring-run-' + id, { opacity: 0.55, duration: 0.8, yoyo: true, repeat: pulses, ease: 'sine.inOut' }, t0 + 0.2);
+        tl.to('#n-' + id, { borderColor: 'rgba(127,176,255,0.55)', duration: 0.2 }, t0);
+        document.getElementById('off-run-' + id).textContent = off;
+        tl.to('#st-run-' + id, { opacity: 1, duration: 0.2 }, t0);
+        tl.to('#gl-run-' + id, { opacity: 0, duration: 0.15 }, t1);
+        tl.to('#ring-run-' + id, { opacity: 0, duration: 0.25, overwrite: 'auto' }, t1);
+        tl.to('#st-run-' + id, { opacity: 0, duration: 0.15 }, t1);
+      }
+      function setSuccess(id, t, off) {
+        tl.to('#gl-ok-' + id, { opacity: 1, duration: 0.2 }, t);
+        tl.fromTo('#ring-ok-' + id, { opacity: 0 }, { opacity: 1, duration: 0.25 }, t);
+        tl.to('#n-' + id, { borderColor: 'rgba(121,211,166,0.55)', duration: 0.25 }, t);
+        document.getElementById('off-ok-' + id).textContent = off;
+        tl.to('#st-ok-' + id, { opacity: 1, duration: 0.2 }, t + 0.05);
+      }
+      function setSkipped(id, t) {
+        tl.to('#n-' + id, { opacity: 0.62, duration: 0.5 }, t);
+        tl.to('#gl-idle-' + id, { opacity: 0, duration: 0.2 }, t);
+        tl.to('#gl-skip-' + id, { opacity: 1, duration: 0.3 }, t);
+        tl.to('#ring-skip-' + id, { opacity: 1, duration: 0.3 }, t);
+        tl.to('#st-skip-' + id, { opacity: 1, duration: 0.3 }, t);
+        tl.to('#n-' + id + ' .ico', { filter: 'grayscale(1)', duration: 0.4 }, t);
+      }
+      function traverse(edgeId, t0, t1) {
+        var loops = Math.max(0, Math.floor((t1 - t0) / 0.7) - 1);
+        tl.fromTo('#' + edgeId + '-flow', { opacity: 0, strokeDashoffset: 0 }, { opacity: 1, duration: 0.15 }, t0);
+        tl.to('#' + edgeId + '-flow', { strokeDashoffset: -14, duration: 0.7, ease: 'none', repeat: loops }, t0);
+        tl.to('#' + edgeId + '-flow', { opacity: 0, duration: 0.2 }, t1);
+        tl.to('#' + edgeId, { stroke: '#3A63C8', strokeWidth: 2.5, duration: 0.3 }, t0 + 0.1);
+      }
+      setRunning('T', RUN, RUN + 0.55, '+0.0s');
+      setSuccess('T', RUN + 0.55, '+0.1s');
+      traverse('e-TC', RUN + 0.26, RUN + 0.61);
+      setRunning('C', RUN + 0.55, RUN + 1.09, '+0.1s');
+      setSuccess('C', RUN + 1.09, '+0.1s');
+      tl.to('#pillfill-e-CP', { opacity: 1, duration: 0.25 }, RUN + 1.09);
+      tl.to('#pill-e-CP .txt', { opacity: 0, duration: 0.2 }, RUN + 1.09);
+      tl.to('#pillon-e-CP', { opacity: 1, duration: 0.2 }, RUN + 1.09);
+      tl.fromTo('#pill-e-CP', { scale: 0.9 }, { scale: 1.06, duration: 0.25, ease: 'back.out(2)' }, RUN + 1.09);
+      tl.to('#pill-e-CK', { opacity: 0.4, duration: 0.4 }, RUN + 1.09);
+      ['K', 'N', 'M'].forEach(function (id) { setSkipped(id, RUN + 1.16); });
+      ['e-CK', 'e-KN', 'e-NM'].forEach(function (id) { tl.to('#' + id, { opacity: 0.45, strokeDasharray: '0.02 0.02', duration: 0.4 }, RUN + 1.16); });
+      traverse('e-CP', RUN + 0.86, RUN + 1.26);
+      setRunning('P', RUN + 1.09, RUN + 2.19, '+0.2s');
+      setSuccess('P', RUN + 2.19, '+1.4s');
+      traverse('e-PA', RUN + 1.96, RUN + 2.31);
+      tl.to('#gl-idle-A', { opacity: 0, duration: 0.15 }, RUN + 2.19);
+      tl.to('#gl-wait-A', { opacity: 1, duration: 0.2 }, RUN + 2.19);
+      tl.fromTo('#ring-wait-A', { opacity: 0 }, { opacity: 1, duration: 0.3 }, RUN + 2.19);
+      tl.to('#ring-wait-A', { opacity: 0.6, duration: 1.2, yoyo: true, repeat: 1, ease: 'sine.inOut' }, RUN + 2.51);
+      tl.to('#n-A', { borderColor: 'rgba(232,183,90,0.6)', duration: 0.3 }, RUN + 2.19);
+      tl.fromTo('#abtns', { opacity: 0, y: 6 }, { opacity: 1, y: 0, duration: 0.35, ease: 'power3.out' }, RUN + 2.31);
+      tl.fromTo('#camera', { scale: 1, x: 0, y: 0, transformOrigin: CAM.ox + 'px ' + CAM.oy + 'px' }, { scale: CAM.s, x: CAM.tx, y: CAM.ty, duration: 1.0, ease: 'power2.inOut' }, RUN + 2.76);
+      tl.to('#controls', { opacity: 0, duration: 0.3 }, RUN + 2.76);
+      moveCursor(approveF, RUN + 3.6, 0.7);
+      tl.to('#btn-approve', { scale: 0.94, duration: 0.08, yoyo: true, repeat: 1 }, RUN + 4.37); // strong cue 37.11 — Approve
+      press(approveF, RUN + 4.37);
+      tl.to('#abtns', { opacity: 0, duration: 0.25 }, RUN + 4.46);
+      tl.to('#gl-wait-A', { opacity: 0, duration: 0.15 }, RUN + 4.37);
+      tl.to('#ring-wait-A', { opacity: 0, duration: 0.3, overwrite: 'auto' }, RUN + 4.37);
+      setSuccess('A', RUN + 4.37, '+1.8s');
+      moveCursor({ x: parkF.x + 80, y: parkF.y + 160 }, RUN + 4.86, 0.9);
+      tl.to('#cursor', { opacity: 0, duration: 0.4 }, RUN + 5.3);
+      tl.to('#camera', { scale: 1, x: 0, y: 0, duration: 1.0, ease: 'power2.inOut' }, RUN + 4.86);
+      tl.to('#controls', { opacity: 1, duration: 0.3 }, RUN + 5.66);
+      traverse('e-AR', RUN + 4.46, RUN + 4.76);
+      setRunning('R', RUN + 4.37, RUN + 5.46, '+1.8s');
+      setSuccess('R', RUN + 5.46, '+4.1s');
+      traverse('e-RZ', RUN + 5.61, RUN + 6.01);
+      setRunning('Z', RUN + 5.81, RUN + 5.99, '+4.1s');
+      setSuccess('Z', RUN + 5.99, '+4.3s'); // beat 38.73 — bell
+      tl.to('#rchip-Z .fill', { opacity: 1, duration: 0.25 }, RUN + 5.99);
+      tl.to('#rchip-Z .txt', { opacity: 0, duration: 0.2 }, RUN + 5.99);
+      tl.to('#rchip-Z .on', { opacity: 1, duration: 0.2 }, RUN + 5.99);
+      tl.fromTo('#n-Z', { boxShadow: '0 0 0 0 rgba(121,211,166,0)' }, { boxShadow: '0 0 34px 2px rgba(121,211,166,0.35)', duration: 0.5, ease: 'power2.out' }, RUN + 5.99);
+      tl.to('#n-Z', { boxShadow: '0 0 20px 0 rgba(121,211,166,0.18)', duration: 1.2 }, RUN + 6.56);
+      ROWS.forEach(function (r, i) {
+        tl.fromTo('#row-' + i, { opacity: 0, y: -8 }, { opacity: 1, y: 0, duration: 0.35, ease: 'power3.out' }, r.at);
+      });
+      tl.fromTo('#summary', { opacity: 0, y: -8 }, { opacity: 1, y: 0, duration: 0.5, ease: 'power3.out' }, RUN + 6.55); // strong cue 39.29
+
+      // ---- Scene 8: timeline / player (40.38 – 45.84) ----
+      tl.fromTo('#seg', { boxShadow: '0 0 0 0 rgba(232,183,90,0)' }, { boxShadow: '0 0 0 1.5px rgba(232,183,90,0.55)', duration: 0.35 }, 40.91);
+      tl.to('#seg', { boxShadow: '0 0 0 0 rgba(232,183,90,0)', duration: 0.5 }, 42.3);
+      tl.set('#cursor', { x: parkF.x + 200, y: parkF.y + 200 }, 41.2);
+      tl.to('#cursor', { opacity: 1, duration: 0.3 }, 41.2);
+      moveCursor(ROW4_XY, 41.2, 1.2);
+      press(ROW4_XY, 42.56); // strong cue 42.56 — click a row → selects its node
+      tl.to('#rowhv-4', { opacity: 1, duration: 0.2 }, 42.56);
+      tl.fromTo('#ring-sel-A', { opacity: 0 }, { opacity: 1, duration: 0.25 }, 42.6);
+      tl.to('#cursor', { opacity: 0, duration: 0.4 }, 44.6);
+      tl.to('#rowhv-4', { opacity: 0, duration: 0.3 }, 45.5);
+      tl.to('#ring-sel-A', { opacity: 0, duration: 0.3 }, 45.5);
+
+      // ---- Scene 9: local-first (45.84 – 51.29) ----
+      tl.to('#chip-saved', { opacity: 0, duration: 0.2 }, 46.37);
+      tl.to('#chip-saving', { opacity: 1, duration: 0.2 }, 46.4);
+      tl.to('#chip-saving', { opacity: 0, duration: 0.2 }, 47.46);
+      tl.to('#chip-saved', { opacity: 1, duration: 0.25 }, 47.5);
+      [46.93, 48.02, 49.11, 50.2].forEach(function (t, i) { // beat-grid, every other beat (readable labels)
+        tl.fromTo('#key-' + i, { opacity: 0, y: 10 }, { opacity: 1, y: 0, duration: 0.35, ease: 'power3.out' }, t);
+      });
+      tl.fromTo('#btn-export', { boxShadow: '0 0 0 0 rgba(232,183,90,0)' }, { boxShadow: '0 0 0 1.5px rgba(232,183,90,0.6)', duration: 0.3 }, 49.11);
+      tl.to('#btn-export', { boxShadow: '0 0 0 0 rgba(232,183,90,0)', duration: 0.5 }, 50.6);
+      tl.fromTo('#toast-3', { opacity: 0, y: 12 }, { opacity: 1, y: 0, duration: 0.3 }, 49.2);
+      tl.to('#toast-3', { opacity: 0, duration: 0.3 }, 51.0);
+
+      // ---- Scene 10: outro (50.6 – 56) ----
+      tl.fromTo('#s3-wrap', { opacity: 0 }, { opacity: 1, duration: 0.7, ease: 'power2.inOut' }, 50.6);
+      tl.fromTo('#s3-sky', { scale: 1.0, xPercent: 0 }, { scale: 1.05, xPercent: -0.4, duration: 5.4, ease: 'none' }, 50.6);
+      tl.fromTo('#outro-title', { opacity: 0, y: 30, scale: 0.97 }, { opacity: 1, y: 0, scale: 1, duration: 1.1, ease: 'power3.out' }, 51.29); // beat-locked: 51.29
+      tl.fromTo('#outro-tag', { opacity: 0, y: 16 }, { opacity: 1, y: 0, duration: 0.9, ease: 'power3.out' }, 51.83); // beat 51.83
+      tl.fromTo('#outro-eyebrow', { opacity: 0, y: 8 }, { opacity: 1, y: 0, duration: 0.7, ease: 'power3.out' }, 53.46); // beat 53.46
+      tl.to('#s3-wrap', { opacity: 0, duration: 0.6, ease: 'power2.in' }, 55.4);
+
+      // ---- Audio-reactive glow (pre-extracted bass envelope, per frame) ----
+      var AUD = window.HF_AUDIO, FPS = AUD.fps;
+      for (var f = 0; f < AUD.bass.length; f++) {
+        var t = f / FPS;
+        if (t > 56) break;
+        var b = AUD.bass[f];
+        if (t < 5.1) tl.set('#s1-glow', { opacity: 0.35 + 0.55 * b }, t);
+        if (t >= 4.39 && t < 51.3) tl.set('#impasto', { opacity: 0.7 + 0.3 * b }, t);
+        if (t >= 50.6) tl.set('#s3-glow', { opacity: 0.3 + 0.6 * b }, t);
+      }
+
+      window.__timelines['main'] = tl;
+      tl.seek(0);
+    </script>
+  </body>
+</html>
