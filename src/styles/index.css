@@ -1,25 +1,13 @@
 @import 'tailwindcss';
-
-@import '@fontsource-variable/inter';
-@import '@fontsource/cormorant-garamond/500.css';
-@import '@fontsource/cormorant-garamond/600.css';
-@import '@fontsource/cormorant-garamond/700.css';
+@import './tokens.css';
+@import './base.css';
+@import './texture.css';
 
 /*
- * Design tokens — PLACEHOLDER VALUES ONLY.
- * The visual design worker (see src/styles/**) owns the real "GOD'S PLAN."
- * inspired palette (deep navy/cobalt impasto, cream/gold/peach, luminous
- * white serif glow). Do not treat these values as final.
+ * Font faces are registered from `styles/fonts.ts` (imported once by
+ * `main.tsx`, side-effecting @fontsource imports) rather than here, so this
+ * stylesheet stays free of a duplicate import list (ARCHITECTURE.md §2).
  */
-:root {
-  --color-bg: #0b1020;
-  --color-surface: #131a30;
-  --color-text: #f5f3ee;
-  --color-muted: #a9b0c3;
-  --color-accent: #d9b25f;
-  --font-display: 'Cormorant Garamond Variable', 'Cormorant Garamond', serif;
-  --font-sans: 'Inter Variable', 'Inter', sans-serif;
-}
 
 html,
 body,
@@ -29,7 +17,7 @@ body,
 
 body {
   margin: 0;
-  background-color: var(--color-bg);
-  color: var(--color-text);
+  background-color: var(--color-navy-900);
+  color: var(--color-cream-50);
   font-family: var(--font-sans);
 }

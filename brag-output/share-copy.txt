@@ -1,0 +1,2 @@
+Every incident has a shape. Draw it before it happens.
+OpsFlow is a local-first canvas for designing and simulating incident response: triggers, conditions, on-call pages, a human approval gate, rollbacks, resolution. Nothing gets paged for real.

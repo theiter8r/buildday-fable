@@ -5,6 +5,8 @@ import App from '../App'
 describe('App', () => {
   it('renders the OpsFlow shell', () => {
     render(<App />)
-    expect(screen.getByText('OpsFlow')).toBeInTheDocument()
+    // No persisted document in jsdom's localStorage -> BootGate renders the hero.
+    expect(screen.getByTestId('hero')).toBeInTheDocument()
+    expect(screen.getByTestId('hero-load-demo')).toBeInTheDocument()
   })
 })

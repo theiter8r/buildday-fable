@@ -1,0 +1,89 @@
+/**
+ * Resets, focus-visible ring, scrollbars, selection colors (ARCHITECTURE.md §2).
+ * Keyframes shared by BottomSheet/Drawer/Toaster/node motion live here too so
+ * there is exactly one place declaring them.
+ */
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+  color-scheme: dark;
+}
+
+::selection {
+  background: var(--color-cobalt-500);
+  color: var(--color-on-cobalt);
+}
+
+/* Focus is always visible; never removed without a replacement (DESIGN.md §7). */
+:focus {
+  outline: none;
+}
+:focus-visible {
+  outline: none;
+  box-shadow: var(--glow-focus);
+}
+
+/* Panel-body scrollbars: 2px cobalt thumb (DESIGN.md §5). */
+.scroll-panel {
+  scrollbar-width: thin;
+  scrollbar-color: var(--color-cobalt-500) transparent;
+}
+.scroll-panel::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+.scroll-panel::-webkit-scrollbar-thumb {
+  background: var(--color-cobalt-500);
+  border-radius: 999px;
+}
+
+/* Kill iOS pull-to-refresh / rubber-banding on the app shell (mobile-native). */
+#root {
+  overscroll-behavior: none;
+}
+
+@keyframes sheet-in {
+  from {
+    transform: translateY(100%);
+  }
+  to {
+    transform: translateY(0);
+  }
+}
+
+@keyframes drawer-in {
+  from {
+    transform: translateX(-100%);
+  }
+  to {
+    transform: translateX(0);
+  }
+}
+
+@keyframes toast-in {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}

@@ -1,0 +1,143 @@
+/**
+ * OpsFlow design tokens — the real "GOD'S PLAN." palette (docs/DESIGN.md).
+ * Declared inside a Tailwind v4 `@theme` block so every token is available
+ * both as a Tailwind utility (`bg-navy-800`, `text-cream-50`,
+ * `shadow-[var(--shadow-md)]`) AND as a plain CSS custom property, since
+ * React Flow reads inline styles / SVG attributes directly off `:root`.
+ *
+ * Do not hand-roll colors/spacing/radii/durations anywhere else — add a
+ * token here and reference it.
+ */
+@theme {
+  /* ---------------------------------------------------------------- Sky */
+  --color-navy-950: #05070f;
+  --color-navy-900: #0a0f1f;
+  --color-navy-850: #0e152b;
+  --color-navy-800: #131c38;
+  --color-navy-700: #1b2850;
+  --color-navy-600: #26376b;
+  --color-line-soft: rgb(255 255 255 / 0.08);
+  --color-line: rgb(155 180 255 / 0.18);
+  --color-line-strong: rgb(155 180 255 / 0.34);
+
+  /* ------------------------------------------------------------ Cobalt */
+  --color-cobalt-600: #2b4a9e;
+  --color-cobalt-500: #3a63c8;
+  --color-cobalt-400: #5b84e6;
+  --color-cobalt-glow: rgb(91 132 230 / 0.35);
+
+  /* ------------------------------------------------------------- Cloud */
+  --color-cream-50: #fbf6ec;
+  --color-cream-100: #f3e8d6;
+  --color-cream-200: #e7d5b8;
+  --color-text-muted: #a9b4d0;
+  --color-text-subtle: #8a93ae;
+
+  /* -------------------------------------------------------------- Gilt */
+  --color-gold-400: #e8b75a;
+  --color-gold-300: #f2ce7e;
+  --color-peach-300: #f0b98e;
+  --color-gold-glow: rgb(232 183 90 / 0.3);
+  --color-on-gold: #05070f;
+  --color-on-cobalt: #fbf6ec;
+
+  /* --------------------------------------------------- Semantic status */
+  --color-state-idle: #8a93ae;
+  --color-state-pending: #a9b4d0;
+  --color-state-running: #7fb0ff;
+  --color-state-success: #79d3a6;
+  --color-state-failed: #ff8f82;
+  --color-state-skipped: #8a93ae;
+  --color-state-awaiting: #f2ce7e;
+  --color-state-warning: #e8b75a;
+  --color-state-error: #ff8f82;
+
+  /* ------------------------------------------------------ Per-node-type */
+  --color-node-trigger: #f0b98e;
+  --color-node-condition: #5b84e6;
+  --color-node-action: #7fb0ff;
+  --color-node-approval: #e8b75a;
+  --color-node-resolution: #79d3a6;
+
+  /* ---------------------------------------------------------- Typography */
+  --font-display: 'Cormorant Garamond Variable', 'Cormorant Garamond', serif;
+  --font-sans: 'Inter Variable', 'Inter', sans-serif;
+  --font-mono: ui-monospace, 'SF Mono', 'JetBrains Mono', monospace;
+
+  --text-hero: clamp(2.75rem, 7vw, 5rem);
+  --text-display: 2rem;
+  --text-title: 1.25rem;
+  --text-body: 0.9375rem;
+  --text-label: 0.8125rem;
+  --text-meta: 0.75rem;
+  --text-micro: 0.6875rem;
+
+  /* -------------------------------------------------------------- Space */
+  --spacing-1: 4px;
+  --spacing-2: 8px;
+  --spacing-3: 12px;
+  --spacing-4: 16px;
+  --spacing-5: 20px;
+  --spacing-6: 24px;
+  --spacing-8: 32px;
+  --spacing-10: 40px;
+  --spacing-12: 48px;
+  --spacing-16: 64px;
+
+  /* ------------------------------------------------------------- Radius */
+  --radius-xs: 4px;
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 16px;
+  --radius-full: 9999px;
+
+  /* -------------------------------------------------------------- Motion */
+  --dur-fast: 120ms;
+  --dur: 200ms;
+  --dur-slow: 320ms;
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-soft: cubic-bezier(0.4, 0, 0.2, 1);
+
+  /* ---------------------------------------------------------- Z-index */
+  --z-canvas: 0;
+  --z-canvas-overlay: 10;
+  --z-panel: 20;
+  --z-splitter: 25;
+  --z-topbar: 30;
+  --z-drawer: 40;
+  --z-sheet: 50;
+  --z-dialog-backdrop: 60;
+  --z-dialog: 61;
+  --z-toast: 70;
+  --z-tooltip: 80;
+}
+
+/*
+ * Plain `:root` vars for anything that is not a color/font/spacing/radius
+ * scale value Tailwind's `@theme` would otherwise turn into a utility
+ * (shadows, glows, and any token referenced only via `var()` in component
+ * CSS or inline styles, never as a `bg-*`/`text-*` utility).
+ */
+:root {
+  --shadow-sm: 0 1px 2px rgb(2 4 10 / 0.5);
+  --shadow-md: 0 6px 16px -4px rgb(2 4 10 / 0.6), 0 2px 4px rgb(2 4 10 / 0.4);
+  --shadow-lg: 0 24px 48px -12px rgb(2 4 10 / 0.7), 0 2px 8px rgb(2 4 10 / 0.5);
+  --shadow-sheet: 0 -12px 32px -8px rgb(2 4 10 / 0.7);
+
+  --glow-title: 0 0 24px rgb(251 246 236 / 0.28), 0 0 72px rgb(232 183 90 / 0.18);
+  --glow-running: 0 0 0 1px var(--color-state-running), 0 0 18px var(--color-cobalt-glow);
+  --glow-awaiting: 0 0 0 1px var(--color-state-awaiting), 0 0 18px var(--color-gold-glow);
+  --glow-focus: 0 0 0 2px var(--color-navy-900), 0 0 0 4px var(--color-gold-400);
+}
+
+/*
+ * e2e determinism: every animation/transition collapses to effectively
+ * instant so Playwright never races a CSS transition. Set by
+ * `src/store/testHandle.ts` via `document.documentElement.dataset.e2e`.
+ */
+[data-e2e] * {
+  animation-duration: 0.001ms !important;
+  animation-delay: 0.001ms !important;
+  transition-duration: 0.001ms !important;
+  transition-delay: 0.001ms !important;
+}

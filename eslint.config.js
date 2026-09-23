@@ -20,6 +20,14 @@ export default tseslint.config(
     rules: {
       ...reactHooks.configs.recommended.rules,
       'react-refresh/only-export-components': ['warn', { allowConstantExport: true }],
+      // Leading-underscore is the repo's convention for an intentionally
+      // unused parameter (throwing domain stubs, typed no-op store actions
+      // awaiting their owning lane) — never for an unused local variable
+      // that should just be deleted.
+      '@typescript-eslint/no-unused-vars': [
+        'error',
+        { argsIgnorePattern: '^_', caughtErrorsIgnorePattern: '^_' },
+      ],
     },
   },
   {

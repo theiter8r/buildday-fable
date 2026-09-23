@@ -115,6 +115,14 @@ export interface WorkflowSlice {
   setDoc: (doc: WorkflowDocument, reason: 'import' | 'reset' | 'clear') => void
   /** Convenience wrapper around `setDoc` that loads the demo workflow. */
   resetToDemo: () => void
+  /**
+   * Records a `rename-doc` command setting `document.name`. Genuinely
+   * missing from the original interface draft (the task brief calls this
+   * `renameWorkflow`); added here rather than duplicated ad hoc so every
+   * lane renames the workflow the same undoable way. No-op when `name`
+   * equals the current name.
+   */
+  renameDoc: (name: string) => void
 }
 
 /** Undo/redo over the document slice. */
@@ -148,6 +156,12 @@ export interface RunSlice {
   approvalDecisions: Record<string, ApprovalDecision>
   /** Set while `status === 'awaiting-approval'`. */
   pendingApprovalNodeId: string | null
+  /**
+   * Wall-clock ms `start()` was called, captured once per run (not on
+   * resume/approve/reject) so the UI can render `new Date(runStartedAtWallClock + event.at)`
+   * for display per ARCHITECTURE.md §4. `null` before the first `start()`.
+   */
+  runStartedAtWallClock: number | null
 
   /** Runs `simulate()` against the current document + payload and starts playback from event 0. */
   start: () => void

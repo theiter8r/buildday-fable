@@ -1,0 +1,62 @@
+/**
+ * Canvas-lane-only styles that can't be expressed as Tailwind utilities:
+ * the edge dash-flow keyframe (animates an SVG stroke-dashoffset) and the
+ * running/awaiting node pulse. Values are the durations from DESIGN.md §6.
+ * Imported once by `FlowCanvas.tsx`. Respects `prefers-reduced-motion` by
+ * relying on JS to never apply the animating class/style in that case (see
+ * `useReducedMotion`) rather than only via `@media`, since some of
+ * these are inline styles React sets conditionally.
+ */
+
+@keyframes opsflow-edge-dash {
+  to {
+    stroke-dashoffset: -14;
+  }
+}
+
+@keyframes opsflow-node-pulse {
+  0%,
+  100% {
+    box-shadow: var(--glow-running);
+    transform: scale(1);
+  }
+  50% {
+    box-shadow:
+      0 0 0 1px var(--color-state-running),
+      0 0 26px var(--color-cobalt-glow);
+    transform: scale(1.012);
+  }
+}
+
+@keyframes opsflow-node-breathe {
+  0%,
+  100% {
+    box-shadow: var(--glow-awaiting);
+  }
+  50% {
+    box-shadow:
+      0 0 0 1px var(--color-state-awaiting),
+      0 0 26px var(--color-gold-glow);
+  }
+}
+
+.opsflow-node-running {
+  animation: opsflow-node-pulse 1.6s var(--ease-soft) infinite;
+}
+
+.opsflow-node-awaiting {
+  animation: opsflow-node-breathe 2.4s var(--ease-soft) infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .opsflow-node-running,
+  .opsflow-node-awaiting {
+    animation: none;
+    box-shadow: var(--glow-running);
+  }
+}
+
+[data-e2e] .opsflow-node-running,
+[data-e2e] .opsflow-node-awaiting {
+  animation: none;
+}
